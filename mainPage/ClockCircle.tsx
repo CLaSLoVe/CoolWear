@@ -215,7 +215,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
             </View>:
             <View style={[styles.TextContainer]}>
               <Text style={[styles.h5]}>
-              {i18n.t("tr")}
+              {i18n.t("TimeRemaining")}
               </Text>
               <Text style={[styles.TimerText]}>
                 {this.formatTime(this.state.timeRemaining)}

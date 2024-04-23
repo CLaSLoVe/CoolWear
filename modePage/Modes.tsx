@@ -80,8 +80,8 @@ export default class Modes extends Component<ModesProps, {}> {
         <TouchableWithoutFeedback onLongPress={() => {
             if (this.props.locked) {
                 Alert.alert(
-                    i18n.t('deletemode'),
-                    i18n.t('modelocked'),
+                    i18n.t('DeleteMode'),
+                    i18n.t('ModeLocked'),
                     [
                         {
                             text: 'OK',
@@ -94,8 +94,8 @@ export default class Modes extends Component<ModesProps, {}> {
                 return;
             }
             Alert.alert(
-                i18n.t('deletemode'),
-                i18n.t('deleteconfirm'),
+                i18n.t('DeleteMode'),
+                i18n.t('DeleteConfirm'),
                 [
                     {
                         text: 'Cancel',
@@ -120,8 +120,8 @@ export default class Modes extends Component<ModesProps, {}> {
                 </View>
                 <View style={styles.content}>
                     <View style={[styles.leftPanel]}>
-                        <Text style={styles.contentText}>{i18n.t('ttt')+': '+this.props.totalRunTime+' '+i18n.t('min')}</Text>
-                        <Text style={styles.contentText}>{i18n.t('temprange')+': '+'~'+this.props.temperature+'\u2103'}</Text>
+                        <Text style={styles.contentText}>{i18n.t('TotalTime')+': '+this.props.totalRunTime+' '+i18n.t('min')}</Text>
+                        <Text style={styles.contentText}>{i18n.t('TempRange')+': '+'~'+this.props.temperature+'\u2103'}</Text>
                         <Text style={styles.contentText}>{convertActionListToDescription(this.props.actionList)}</Text>
                     </View>
                     <View style={[styles.rightPanel]}>

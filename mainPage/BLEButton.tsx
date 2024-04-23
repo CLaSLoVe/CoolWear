@@ -132,7 +132,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
         await this.connectWithTimeout();
       } catch (error) {
         console.log('connect error');
-        Toast.show(i18n.t('bleError'), {
+        Toast.show(i18n.t('BLEError'), {
           type: "warning",
           placement: "bottom",
           duration: 2000,
@@ -165,18 +165,18 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
             <View style={[styles.bleButton]}>
                 {   bleState==0 ? (
                         <Text style={[styles.whiteText]}>
-                            {i18n.t('b1') }
+                            {i18n.t('ConnectBLE') }
                         </Text>
                     ) : bleState==1 ? (
                         <ActivityIndicator size="large" color="white" />
                     ) : bleState==2 ? (
                         <View>
                             <Text style={[styles.whiteText]}>
-                            {i18n.t('b2') }
+                            {i18n.t('ConnectedBLE') }
                                 
                             </Text>
                             <Text style={[styles.whiteTextSmall]}>
-                            {i18n.t('b3') }
+                            {i18n.t('DisconnectBLE') }
                                 
                             </Text>
                         </View>

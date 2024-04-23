@@ -75,7 +75,7 @@ export async function readDataFromDevice(){
 
 
 export function  connectToaster () {
-  Toast.show(i18n.t('pleaseConnectBLE'), {
+  Toast.show(i18n.t('PleaseConnectBLE'), {
     type: "warning",
     placement: "bottom",
     duration: 2000,

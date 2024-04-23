@@ -192,16 +192,16 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
             <TouchableOpacity onPress={()=>{this.props.navigation.navigate("SettingsScreen")}}>
                 <Text style={[styles.ButtonText]}>{"<"}</Text>
             </TouchableOpacity>
-            <Text style={[styles.ButtonText]}>{i18n.t("cus")}</Text>
+            <Text style={[styles.ButtonText]}>{i18n.t("Customization")}</Text>
             <View style={[styles.panel]}>
 
                 <View style={[styles.settingLine]}>
-                    <Text style={[styles.selectorText]}>{i18n.t('name')}</Text>
+                    <Text style={[styles.selectorText]}>{i18n.t('Name')}</Text>
                     <TextInput
                         style={styles.input}
                         onChangeText={(text) => {this.setState({ title: text })}}
                         value={this.state.title}
-                        placeholder={i18n.t('inputname')}
+                        placeholder={i18n.t('InputName')}
                     />
                 </View>
 
@@ -220,7 +220,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                 {content}
 
                 <View style={[styles.settingLine]}>
-                <Text style={[styles.selectorText]}>{i18n.t("conduct")}</Text>
+                <Text style={[styles.selectorText]}>{i18n.t("Conduct")}</Text>
                     <View style={[styles.selectorBG]}>
                         <Picker
                             mode='dropdown'
@@ -231,11 +231,11 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                             {this.generatePickerItems(globalVals.numCycleRange[0], globalVals.numCycleRange[1])}
                         </Picker>
                     </View> 
-                    <Text style={[styles.selectorText]}>{i18n.t("cycles")}</Text>
+                    <Text style={[styles.selectorText]}>{i18n.t("Cycles")}</Text>
                 </View>
                 <View style={[styles.settingLine]}>
 
-                    <Text style={[styles.selectorText]}>{i18n.t('ttt')+": "+String(this.state.totalRunTime)+" "+i18n.t('min')}</Text>
+                    <Text style={[styles.selectorText]}>{i18n.t('TotalTime')+": "+String(this.state.totalRunTime)+" "+i18n.t('min')}</Text>
                     
                 </View>
 
@@ -246,14 +246,14 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                     
 
                     <TouchableOpacity style={[exStyles.saveButton]} onPress={()=>{this.saveMode()}}>
-                        <Text style={[styles.smallButtonText]}>{i18n.t('save')}</Text>
+                        <Text style={[styles.smallButtonText]}>{i18n.t('Save')}</Text>
                     </TouchableOpacity>
    
                     
 
                     <TouchableOpacity style={[exStyles.resetButton]} onPress={()=>{this.reset()}}>
                     
-                        <Text style={[styles.smallButtonText]}>{i18n.t('reset')}</Text>
+                        <Text style={[styles.smallButtonText]}>{i18n.t('Reset')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -341,11 +341,11 @@ export class HelpAndFeedBack extends Component<SettingProps, {}> {
     return (
         <TouchableOpacity onLongPress={()=>{
             Clipboard.setString('22038367r@connect.polyu.hk');
-            Alert.alert(i18n.t('copyemail'));
+            Alert.alert(i18n.t('CopyEmail'));
         }}>
             <View style = {{alignItems:'flex-start', justifyContent: 'space-between'}}>
-                <Text style={[styles.settingButtonText]}>{i18n.t('haf')}</Text>
-                <Text style = {{alignItems:'flex-start', marginLeft:'5%'}}>{i18n.t('fbd')}</Text>
+                <Text style={[styles.settingButtonText]}>{i18n.t('HelpFeedback')}</Text>
+                <Text style = {{alignItems:'flex-start', marginLeft:'5%'}}>{i18n.t('FeedBack')}</Text>
             </View>
         </TouchableOpacity>
     )
@@ -364,12 +364,12 @@ export default class Settings extends Component<SettingProps, {}> {
   render() { 
     return (
     <View style={[styles.panel]}>
-        <CustomBase title={i18n.t("cus")} navigateTo={"CustomScreen"} navigation={this.props.navigation}/>
+        <CustomBase title={i18n.t("Customization")} navigateTo={"CustomScreen"} navigation={this.props.navigation}/>
         <View style = {{flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth:1, borderBlockColor:'lightgrey'}}>
-            <Text style={[styles.settingButtonText]}>{i18n.t('language')}</Text>
+            <Text style={[styles.settingButtonText]}>{i18n.t('Language')}</Text>
             <SetLanuage navigation={this.props.navigation}/>
         </View>
-        <CustomBase title={i18n.t("um")} navigateTo={"Settings"} navigation={this.props.navigation}/>
+        <CustomBase title={i18n.t("UserManual")} navigateTo={"Settings"} navigation={this.props.navigation}/>
         <HelpAndFeedBack navigation={this.props.navigation}/>
       </View>
     )
