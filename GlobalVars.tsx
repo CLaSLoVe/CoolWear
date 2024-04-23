@@ -1,0 +1,84 @@
+import { NativeEventEmitter, NativeModules, StyleSheet, Text, View } from 'react-native'
+import React, { Component } from 'react'
+import { EventEmitter } from 'eventemitter3';
+import Storage from 'react-native-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import BleManager from 'react-native-ble-manager';
+import { Toast } from 'react-native-toast-notifications';
+import i18n from './locales';
+
+// export const CWid = "F4:12:FA:F8:F1:FE";
+// export const serviceid = "6e400020-b5a3-f393-e0a9-e50e24dcca9d";
+// export const characteristicid = "6e400023-b5a3-f393-e0a9-e50e24dcca9d";
+// export const characteristicid2 = "6e400021-b5a3-f393-e0a9-e50e24dcca9d";
+
+export const globalVals = {
+  CWid: "F4:12:FA:F8:F1:FE",
+  serviceid: "6e400020-b5a3-f393-e0a9-e50e24dcca9d",
+  characteristicid: "6e400023-b5a3-f393-e0a9-e50e24dcca9d",
+  characteristicid2: "6e400021-b5a3-f393-e0a9-e50e24dcca9d",
+  temperatureRange: [38, 45],
+  hotDurationRange: [1, 30],
+  coldDurationRange: [1, 30],
+  numCycleRange: [1, 10],
+};
+
+const BleManagerModule = NativeModules.BleManager;
+export const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
+
+export const storage = new Storage({
+  size: 1000,
+
+  storageBackend: AsyncStorage,
+
+  defaultExpires: null,
+
+  enableCache: true, 
+});
+
+export const eventEmitter = new EventEmitter();
+
+export default class GlobalVars extends Component {
+  render() {
+    return (
+      <View>
+        <Text>GlobalVars</Text>
+      </View>
+    )
+  }
+}
+
+export const globalStyles = StyleSheet.create({
+  page: {
+      marginTop: '10%',
+      marginLeft: '5%',
+      marginRight: '5%',
+
+  },  
+})
+
+export async function readDataFromDevice(){
+  BleManager.startNotification(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid2).then(() => {
+    console.log('Started notification on ' + globalVals.CWid);
+    bleManagerEmitter.addListener(
+      "BleManagerDidUpdateValueForCharacteristic",
+      ({ value, peripheral, characteristic, service }) => {
+        // console.log(`Received ${value}`);
+        eventEmitter.emit('Notify', value);
+      }
+    );
+
+  }).catch((error) => {
+    console.log('Notification error:', error);
+  });
+};
+
+
+export function  connectToaster () {
+  Toast.show(i18n.t('pleaseConnectBLE'), {
+    type: "warning",
+    placement: "bottom",
+    duration: 2000,
+    animationType: "zoom-in",
+  });
+}

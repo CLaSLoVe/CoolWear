@@ -1,0 +1,481 @@
+import { Text, StyleSheet, View, TouchableOpacity, Switch, TouchableOpacityComponent, TextInput, Alert } from 'react-native'
+import React, { Component } from 'react'
+import { globalVals, globalStyles, storage, eventEmitter } from '../GlobalVars'
+import {Picker} from '@react-native-picker/picker';
+import { Image } from 'react-native';
+import RadioGroup from 'react-native-radio-buttons-group';
+import Clipboard from '@react-native-clipboard/clipboard';
+import i18n from '../locales/index';
+import RNRestart from 'react-native-restart'; 
+
+
+interface SettingProps {
+    navigation: any;
+}
+
+interface CustomProps {
+    title: string;
+    navigateTo:string;
+    navigation: any;
+}
+
+
+export class CustomPage extends Component<SettingProps, {temperature:number, hotDur:number, coldDur:number,  modeHotCold:string, radioButtons:{ id: string; label: string }[], totalRunTime:number, numCycles:number, title:string}> {
+    constructor(props: SettingProps) {
+        super(props);
+        this.state = {
+            modeHotCold: '3',
+            temperature: 40,
+            hotDur: 6,
+            coldDur: 6,
+            radioButtons: [
+                { id: '1', label: i18n.t('Hot') },
+                { id: '2', label: i18n.t('Cold') },
+                { id: '3', label: i18n.t('Both') },
+            ],
+            numCycles: 1,
+            totalRunTime: 0,
+            title: '',
+        };
+    }
+
+    reset = () => {
+        this.setState({
+            title: '',
+            modeHotCold: '3',
+            temperature: 40,
+            hotDur: 5,
+            coldDur: 5,
+            numCycles: 1,
+        });
+    }
+
+    generatePickerItems = (a:number, b:number) => {
+        const items = [];
+        for (let i = a; i <= b; i++) {
+          items.push(<Picker.Item style={{fontSize:15}} key={i} label={String(i)} value={i} />);
+        }
+        return items;
+    };
+
+    calcActionList = () => {
+        let actionList = [];
+        let hotDur = this.state.hotDur;
+        let coldDur = this.state.coldDur;
+        let numCycles = this.state.numCycles;
+        let modeHotCold = this.state.modeHotCold;
+        if (modeHotCold=='3'){
+            for (let i = 0; i < numCycles; i++) {
+                actionList.push([coldDur, false]);
+                actionList.push([hotDur, true]);
+            }
+        }else if (modeHotCold=='1'){
+            for (let i = 0; i < numCycles; i++) {
+                actionList.push([hotDur, true]);
+            }
+        }else if (modeHotCold=='2'){
+            for (let i = 0; i < numCycles; i++) {
+                actionList.push([coldDur, false]);
+            }
+        };
+        return actionList;
+    }
+
+    saveMode = () => {
+        const currentDate = new Date();
+        storage.save({
+            key: 'modes',
+            id: currentDate.toString(),
+            data: {
+                title:this.state.title? this.state.title: 'Custom Mode',
+                totalRunTime: this.state.totalRunTime,
+                temperature: this.state.temperature,
+                actionList: this.calcActionList(),
+                timeId: currentDate.toString(),
+                locked: false,
+              },
+          }).then(() => {
+            this.props.navigation.navigate('SettingsScreen');
+            this.props.navigation.navigate('Mode');
+            eventEmitter.emit('refreshModes');
+          });
+    }
+
+    calc_totalRunTime = () => {
+        if (this.state.modeHotCold=='3'){
+            this.setState({totalRunTime: (this.state.hotDur+this.state.coldDur)*this.state.numCycles});
+        }else if (this.state.modeHotCold=='1'){
+            this.setState({totalRunTime: this.state.hotDur*this.state.numCycles});
+        }else if (this.state.modeHotCold=='2'){
+            this.setState({totalRunTime: this.state.coldDur*this.state.numCycles});
+        };
+    }
+
+    componentDidMount() {
+        this.calc_totalRunTime();
+        this.reset();
+    }
+
+    componentDidUpdate(prevProps:any, prevState:any, ) {
+        if (this.state.modeHotCold !== prevState.modeHotCold || this.state.hotDur !== prevState.hotDur || this.state.coldDur !== prevState.coldDur || this.state.numCycles !== prevState.numCycles) {
+            this.calc_totalRunTime();
+        }
+    }
+
+  render() {
+    let hotLine = (<View style={[styles.settingLine]}>
+        <Image source={require('../assets/hot.png')} style={{aspectRatio: 1, width: "12%", alignSelf: 'center'}} fadeDuration={100}/>
+        <Text>  </Text>
+        <View style={[styles.selectorBG]}>
+            <Picker
+                mode='dropdown'
+                selectedValue={this.state.hotDur}
+                onValueChange={(itemValue, itemIndex) =>
+                    {
+                        this.setState({hotDur: itemValue});
+                    }
+                }>
+                {this.generatePickerItems(globalVals.hotDurationRange[0], globalVals.hotDurationRange[1])}
+            </Picker>
+        </View> 
+        <Text style={[styles.selectorText]}>{i18n.t("min")}</Text>
+        <Text>  </Text>
+            <View style={[styles.selectorBG]}>
+            <Picker
+                mode='dropdown'
+                selectedValue={this.state.temperature}
+                onValueChange={(itemValue, itemIndex) =>
+                    {
+                        this.setState({temperature: itemValue});
+                    }
+                }>
+                {this.generatePickerItems(globalVals.temperatureRange[0], globalVals.temperatureRange[1])}
+            </Picker>
+        </View> 
+        <Text style={[styles.selectorText]}>{"\u2103"}</Text>
+    </View>);
+
+    let coldLine = (<View style={[styles.settingLine]}>
+        <Image source={require('../assets/cold.png')} style={{aspectRatio: 1, width: "12%", alignSelf: 'center'}} fadeDuration={100}/>
+        <Text>  </Text>
+        <View style={[styles.selectorBG]}>
+            <Picker
+                
+                mode='dropdown'
+                selectedValue={this.state.coldDur}
+                onValueChange={(itemValue, itemIndex) =>
+                    this.setState({coldDur: itemValue})
+                }>
+                {this.generatePickerItems(globalVals.hotDurationRange[0], globalVals.hotDurationRange[1])}
+            </Picker>
+        </View> 
+        <Text style={[styles.selectorText]}>{i18n.t("min")}</Text>
+    </View>);
+
+    let content;
+    switch (this.state.modeHotCold) {
+        case '1':
+        content = hotLine;
+        break;
+        case '2':
+        content = coldLine;
+        break;
+        case '3':
+        content = (<View>
+            {hotLine}
+            {coldLine}
+        </View>);
+    }
+
+    return (
+        <View style={[globalStyles.page]}>
+            <TouchableOpacity onPress={()=>{this.props.navigation.navigate("SettingsScreen")}}>
+                <Text style={[styles.ButtonText]}>{"<"}</Text>
+            </TouchableOpacity>
+            <Text style={[styles.ButtonText]}>{i18n.t("cus")}</Text>
+            <View style={[styles.panel]}>
+
+                <View style={[styles.settingLine]}>
+                    <Text style={[styles.selectorText]}>{i18n.t('name')}</Text>
+                    <TextInput
+                        style={styles.input}
+                        onChangeText={(text) => {this.setState({ title: text })}}
+                        value={this.state.title}
+                        placeholder={i18n.t('inputname')}
+                    />
+                </View>
+
+                <View style={[styles.settingLine]}>
+                    <RadioGroup 
+                        layout='row'
+                        containerStyle={{alignItems: 'flex-start', marginBottom: 10, marginTop: 10, width: '100%'}}
+                        labelStyle={{fontSize: 20, color: 'black', }}
+                        radioButtons={this.state.radioButtons} 
+                        onPress={(selectWhat)=>{this.setState({modeHotCold: selectWhat})}}
+                        selectedId={this.state.modeHotCold}
+                    />
+                    
+                </View>
+                
+                {content}
+
+                <View style={[styles.settingLine]}>
+                <Text style={[styles.selectorText]}>{i18n.t("conduct")}</Text>
+                    <View style={[styles.selectorBG]}>
+                        <Picker
+                            mode='dropdown'
+                            selectedValue={this.state.numCycles}
+                            onValueChange={(itemValue, itemIndex) =>
+                                this.setState({numCycles: itemValue})
+                            }>
+                            {this.generatePickerItems(globalVals.numCycleRange[0], globalVals.numCycleRange[1])}
+                        </Picker>
+                    </View> 
+                    <Text style={[styles.selectorText]}>{i18n.t("cycles")}</Text>
+                </View>
+                <View style={[styles.settingLine]}>
+
+                    <Text style={[styles.selectorText]}>{i18n.t('ttt')+": "+String(this.state.totalRunTime)+" "+i18n.t('min')}</Text>
+                    
+                </View>
+
+
+                
+
+                <View style={[styles.settingCenter]}>
+                    
+
+                    <TouchableOpacity style={[exStyles.saveButton]} onPress={()=>{this.saveMode()}}>
+                        <Text style={[styles.smallButtonText]}>{i18n.t('save')}</Text>
+                    </TouchableOpacity>
+   
+                    
+
+                    <TouchableOpacity style={[exStyles.resetButton]} onPress={()=>{this.reset()}}>
+                    
+                        <Text style={[styles.smallButtonText]}>{i18n.t('reset')}</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </View> 
+        
+    )
+  }
+}
+
+
+export class CustomBase extends Component<CustomProps, {}> {
+    constructor(props: CustomProps) {
+        super(props);
+    }
+
+  render() {
+    return (
+    <TouchableOpacity onPress={()=>{this.props.navigation.navigate(this.props.navigateTo)}}>
+        <View style = {{flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth:1, borderBlockColor:'lightgrey'}}>
+            <Text style={[styles.settingButtonText]}>{this.props.title}</Text>
+            <Text style={[styles.ButtonHandler]}>{">"}</Text>
+        </View>
+    </TouchableOpacity>
+    )
+  }
+}
+
+export class SetLanuage extends Component<SettingProps, {language:string}> {
+    constructor(props: SettingProps) {
+        super(props);
+        this.state = {
+            language: 'en',
+        };
+    }
+
+    componentDidMount(): void {
+        storage.load({
+            key: 'settings',
+            id: 'language',
+        }).then((ret) => {
+            this.setState({language: ret});
+        }).catch((err) => {
+            this.setState({language: 'en'});
+        });
+        
+    }
+
+  render() {
+    return (
+    <View style={[styles.selectorBG2]}>
+        <Picker
+            mode='dropdown'
+            selectedValue={this.state.language}
+            onValueChange={(itemValue, itemIndex) =>
+                {
+                    this.setState({language: itemValue});
+                    storage.save({
+                        key: 'settings',
+                        id: 'language',
+                        data: itemValue,
+                    }).then(() => {
+                        console.log('Language changed to '+itemValue);
+                        RNRestart.Restart();
+                    });
+                    // i18next.changeLanguage(itemValue);
+                    // Alert.alert(
+                    //     'Please restart the app to apply the language change.',)
+                }
+            }>
+            <Picker.Item style={{fontSize:15}} label="English" value="en" />
+            <Picker.Item style={{fontSize:15}} label="中文" value="zh" />
+            
+        </Picker>
+    </View> 
+    )
+  }
+}
+
+export class HelpAndFeedBack extends Component<SettingProps, {}> {
+    constructor(props: SettingProps) {
+        super(props);
+    }
+
+  render() {
+    return (
+        <TouchableOpacity onLongPress={()=>{
+            Clipboard.setString('22038367r@connect.polyu.hk');
+            Alert.alert(i18n.t('copyemail'));
+        }}>
+            <View style = {{alignItems:'flex-start', justifyContent: 'space-between'}}>
+                <Text style={[styles.settingButtonText]}>{i18n.t('haf')}</Text>
+                <Text style = {{alignItems:'flex-start', marginLeft:'5%'}}>{i18n.t('fbd')}</Text>
+            </View>
+        </TouchableOpacity>
+    )
+  }
+}
+
+
+
+
+export default class Settings extends Component<SettingProps, {}> {
+    constructor(props: SettingProps) {
+        super(props);
+    }
+
+
+  render() { 
+    return (
+    <View style={[styles.panel]}>
+        <CustomBase title={i18n.t("cus")} navigateTo={"CustomScreen"} navigation={this.props.navigation}/>
+        <View style = {{flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth:1, borderBlockColor:'lightgrey'}}>
+            <Text style={[styles.settingButtonText]}>{i18n.t('language')}</Text>
+            <SetLanuage navigation={this.props.navigation}/>
+        </View>
+        <CustomBase title={i18n.t("um")} navigateTo={"Settings"} navigation={this.props.navigation}/>
+        <HelpAndFeedBack navigation={this.props.navigation}/>
+      </View>
+    )
+  }
+}
+
+const styles = StyleSheet.create({
+    panel: {
+        backgroundColor: 'white',
+        borderRadius: 8,
+        elevation: 5,
+        padding: 16,
+        marginBottom: 16,
+        justifyContent: 'space-evenly',
+    },
+    input: {
+        width: '80%',
+        height: 50,
+        borderWidth: 3,
+        borderColor: 'gray',
+        // paddingHorizontal: 10,
+      },
+    Button:{
+        margin: 12,
+        // padding: 8,
+        marginLeft: 30,
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        width:"100%",
+        height: 50,
+    },
+    squreButton:{
+        borderRadius: 8,
+        width: "40%",
+        aspectRatio: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    ButtonText:{
+        color: 'black',
+        fontSize: 30,
+        marginBottom: 10,
+        alignSelf: 'flex-start',
+    },
+    settingButtonText:{
+        color: 'black',
+        fontSize: 30,
+        alignSelf: 'flex-start',
+        padding: 10,
+    },
+    ButtonHandler:{
+        color: 'black',
+        fontSize: 30,
+        alignSelf: 'center',
+    },
+    selectorBG:{
+        backgroundColor: '#F6F5F5',
+        borderRadius: 8,
+        width: 100,
+    },
+    selectorBG2:{
+        backgroundColor: '#F6F5F5',
+        borderRadius: 8,
+        width: 150,
+        height: 50,
+        alignSelf: 'center',
+    },
+    selectorText:{
+        color: 'black',
+        fontSize: 20,
+        alignSelf: 'center',
+    },
+    settingLine:{
+        flexDirection:"row", 
+        marginBottom:"5%",
+    },
+    settingCenter:{
+        flexDirection:"row", 
+        marginBottom:"5%",
+        marginHorizontal: '20%',
+        justifyContent: 'space-between',
+
+    },
+    smallButtonText:{
+        color: 'white',
+        fontSize: 20,
+    },
+})
+
+const exStyles = StyleSheet.create({
+    ButtonTop:{
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+        ...styles.Button,
+    },
+    ButtonBottom:{
+        borderBottomLeftRadius: 8,
+        borderBottomRightRadius: 8,
+        ...styles.Button,
+    },
+    saveButton:{
+        ...styles.squreButton,
+        backgroundColor: '#1F3C88',
+    },
+    resetButton:{
+        ...styles.squreButton,
+        backgroundColor: '#EE6F57',
+    },
+})
