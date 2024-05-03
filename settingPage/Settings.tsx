@@ -20,6 +20,7 @@ interface CustomProps {
 }
 
 
+// 自定义页面细节
 export class CustomPage extends Component<SettingProps, {temperature:number, hotDur:number, coldDur:number,  modeHotCold:string, radioButtons:{ id: string; label: string }[], totalRunTime:number, numCycles:number, title:string}> {
     constructor(props: SettingProps) {
         super(props);
@@ -164,8 +165,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                 mode='dropdown'
                 selectedValue={this.state.coldDur}
                 onValueChange={(itemValue, itemIndex) =>
-                    this.setState({coldDur: itemValue})
-                }>
+                    this.setState({coldDur: itemValue})}>
                 {this.generatePickerItems(globalVals.hotDurationRange[0], globalVals.hotDurationRange[1])}
             </Picker>
         </View> 
@@ -184,6 +184,20 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
         content = (<View>
             {hotLine}
             {coldLine}
+            <View style={[styles.settingLine]}>
+                    <Text style={[styles.selectorText]}>{i18n.t("Conduct")}</Text>
+                        <View style={[styles.selectorBG]}>
+                            <Picker
+                                mode='dropdown'
+                                selectedValue={this.state.numCycles}
+                                onValueChange={(itemValue, itemIndex) =>
+                                    this.setState({numCycles: itemValue})
+                                }>
+                                {this.generatePickerItems(globalVals.numCycleRange[0], globalVals.numCycleRange[1])}
+                            </Picker>
+                        </View> 
+                    <Text style={[styles.selectorText]}>{i18n.t("Cycles")}</Text>
+                </View>
         </View>);
     }
 
@@ -211,7 +225,12 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                         containerStyle={{alignItems: 'flex-start', marginBottom: 10, marginTop: 10, width: '100%'}}
                         labelStyle={{fontSize: 20, color: 'black', }}
                         radioButtons={this.state.radioButtons} 
-                        onPress={(selectWhat)=>{this.setState({modeHotCold: selectWhat})}}
+                        onPress={(selectWhat)=>{
+                            this.setState({modeHotCold: selectWhat});
+                            if (selectWhat!='3'){
+                                this.setState({numCycles: 1});
+                            }
+                        }}
                         selectedId={this.state.modeHotCold}
                     />
                     
@@ -219,20 +238,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                 
                 {content}
 
-                <View style={[styles.settingLine]}>
-                <Text style={[styles.selectorText]}>{i18n.t("Conduct")}</Text>
-                    <View style={[styles.selectorBG]}>
-                        <Picker
-                            mode='dropdown'
-                            selectedValue={this.state.numCycles}
-                            onValueChange={(itemValue, itemIndex) =>
-                                this.setState({numCycles: itemValue})
-                            }>
-                            {this.generatePickerItems(globalVals.numCycleRange[0], globalVals.numCycleRange[1])}
-                        </Picker>
-                    </View> 
-                    <Text style={[styles.selectorText]}>{i18n.t("Cycles")}</Text>
-                </View>
+               
                 <View style={[styles.settingLine]}>
 
                     <Text style={[styles.selectorText]}>{i18n.t('TotalTime')+": "+String(this.state.totalRunTime)+" "+i18n.t('min')}</Text>
@@ -264,6 +270,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
 }
 
 
+// 设置页面的基础组件
 export class CustomBase extends Component<CustomProps, {}> {
     constructor(props: CustomProps) {
         super(props);
@@ -281,7 +288,9 @@ export class CustomBase extends Component<CustomProps, {}> {
   }
 }
 
-export class SetLanuage extends Component<SettingProps, {language:string}> {
+
+// 设置语言
+export class SetLanguage extends Component<SettingProps, {language:string}> {
     constructor(props: SettingProps) {
         super(props);
         this.state = {
@@ -332,6 +341,7 @@ export class SetLanuage extends Component<SettingProps, {language:string}> {
   }
 }
 
+// 帮助与反馈
 export class HelpAndFeedBack extends Component<SettingProps, {}> {
     constructor(props: SettingProps) {
         super(props);
@@ -353,8 +363,7 @@ export class HelpAndFeedBack extends Component<SettingProps, {}> {
 }
 
 
-
-
+// 设置页面总体
 export default class Settings extends Component<SettingProps, {}> {
     constructor(props: SettingProps) {
         super(props);
@@ -367,7 +376,7 @@ export default class Settings extends Component<SettingProps, {}> {
         <CustomBase title={i18n.t("Customization")} navigateTo={"CustomScreen"} navigation={this.props.navigation}/>
         <View style = {{flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth:1, borderBlockColor:'lightgrey'}}>
             <Text style={[styles.settingButtonText]}>{i18n.t('Language')}</Text>
-            <SetLanuage navigation={this.props.navigation}/>
+            <SetLanguage navigation={this.props.navigation}/>
         </View>
         <CustomBase title={i18n.t("UserManual")} navigateTo={"Settings"} navigation={this.props.navigation}/>
         <HelpAndFeedBack navigation={this.props.navigation}/>
