@@ -8,21 +8,23 @@ import i18n from '../locales';
 import FastImage from 'react-native-fast-image'
 import { Toast } from 'react-native-toast-notifications';
 
-export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, easingDuration:number, countingDown:boolean}> {
-  timer: NodeJS.Timeout | undefined;
+export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number}> {
+  // timer: NodeJS.Timeout | undefined;
   screenWidth: number = 640;
   constructor(props: {}) {
     super(props);
     this.state = {
-      full_time: 15*60,
-      disabled: true,
+      full_time: 0,
+      disabled: false, // 是否禁用按钮
       start_running: false,
-      stop_running: false,
-      running_state: 0,  
-      timeRemaining: 0,
-      three_two_one: 3000,
-      easingDuration: 1000,
-      countingDown: false,
+      stop_running: false, 
+      running_state: 0,  // 0: 停止 1: 运行 2: 暂停
+      timeRemaining: 0, // 剩余时间
+      curHotCold: 0, // 当前是热水还是冷水
+      cyclePercentage: 0, // 当前周期百分比
+      three_two_one: 3000, // 3 2 1 倒计时
+      countingDown: false, // 是否正在倒计时
+      heater: 0x00,
     };
   }
 
@@ -48,6 +50,14 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
 
     this.setState({timeRemaining: this.state.full_time});    
     this.screenWidth = Dimensions.get('window').width;
+    eventEmitter.on('Heater', (data: any) => {
+      // console.log('heater',data);
+      if (data){
+        this.setState({ heater: 0x01 });
+      } else {
+        this.setState({ heater: 0x00 });
+      };
+    });
     eventEmitter.on('BLEConnection', (data: any) => {
       this.setState({ disabled: !data });
     });
@@ -66,15 +76,25 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       );
     });
     eventEmitter.on('Notify', (data: any) => {
-      this.setState({timeRemaining: data[1]*256 + data[2]});
-      // if (this.state.timeRemaining != data[1]*256 + data[2]){
-        // Toast.show(i18n.t('ConnectionUnstable'), {
-        //   type: "warning",
-        //   placement: "bottom",
-        //   duration: 1000,
-        //   animationType: "zoom-in",
-        // });
-      // }
+      // console.log(data);
+      this.setState({
+        timeRemaining: data[1]*256 + data[2] + 1,
+        curHotCold: data[8]>>4,
+        // running_state: data[8] - data[8]>>4,
+      });
+      if (data[7]){
+        if (data[8]%16 == 0){
+          this.setState({running_state: 1});
+          this.setState({cyclePercentage: Math.round((data[10]*256+data[11])/(data[9]*60)*100)})
+        }else{
+          this.setState({running_state: 2});
+        }
+      } else {
+        this.setState({running_state: 0,
+          timeRemaining: data[1]*256 + data[2] + 1,
+          cyclePercentage: 0
+        });
+      };
     });
     
   }
@@ -87,57 +107,57 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
   }
 
   start_timer = () => {
-    // let waitTimer = setTimeout(() => {
-    // }, 3000);
+    if (this.state.running_state == 2){
+      this.setState({running_state: 1});
+      return;
+    } else if (this.state.running_state == 1){
+      this.setState({running_state: 2});
+      return;
+    }
     // 倒计时 321
     this.setState({countingDown: true});
     let cdTimer = setInterval(() => {
       this.setState({three_two_one: this.state.three_two_one-1000});
-      console.log(this.state.three_two_one);
+      // console.log(this.state.three_two_one);
       // 倒计时结束
       if (this.state.three_two_one <= 0){
         clearInterval(cdTimer);
         this.setState({countingDown: false, three_two_one: 3000});
         // 开始计时
-        this.timer = setInterval(() => {
-          if (this.state.timeRemaining <= 0){
-            this.stop_timer();
-            return;
-          }
-          this.setState({
-            timeRemaining: this.state.timeRemaining-1
-          });
-        }, 1000);
-        // 按钮解锁
-        if (this.state.disabled == true){
-          this.setState({disabled: false});
-        }
-        // 运行状态改为运行
+        // this.timer = setInterval(() => {
+        //   if (this.state.timeRemaining <= 0){
+        //     this.stop_timer();
+        //     return;
+        //   }
+        //   this.setState({
+        //     timeRemaining: this.state.timeRemaining-1
+        //   });
+        // }, 1000);
         this.setState({running_state: 1});
-        eventEmitter.emit('timerRunning', true);
-        console.log('start');
       }
     }, 1000);
      
   }
 
   pause_timer = () => {
-    clearInterval(this.timer);
+    // clearInterval(this.timer);
     this.setState({running_state: 2});
     eventEmitter.emit('timerRunning', false);
-    console.log('pause')
+    // console.log('Paused')
   }
 
   stop_timer = () => {
-    clearInterval(this.timer);
-    this.setState({ easingDuration: 0},
+    // clearInterval(this.timer);
+    this.setState({ 
+      cyclePercentage: 0
+    },
     () => {
       this.setState({ timeRemaining: this.state.full_time, running_state: 0},
-         () => {this.setState({ easingDuration: 1000, })}
+         () => {}
         );
     });
     eventEmitter.emit('timerRunning', false);
-    console.log('stop')
+    // console.log('Stopped')
   }
 
 
@@ -148,26 +168,54 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       return;
     }
 
-    console.log('startCW');
+    // console.log('startCW');
+    // 目前运行，然后暂停
     if (this.state.running_state == 1){
+      this.setState({start_running: true});
       this.pause_timer();
+      let success = false;
+      while (this.state.running_state == 1){
+        try {
+          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x02, this.state.heater, 0x00, 0x00, 0x00]);
+          console.log('Paused')
+          success = true;
+        } catch (error) {
+          console.log(error)
+        }
+      }
+      this.setState({start_running: false});
       return;
+    // 目前暂停，然后继续
     } else if (this.state.running_state == 2){
+      this.setState({start_running: true});
       this.start_timer();
+      let success = false;
+      while (this.state.running_state == 2){
+        try {
+          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x03, this.state.heater, 0x00, 0x00, 0x00]);
+          console.log('Continued')
+          success = true;
+        } catch (error) {
+          console.log(error)
+        }
+      }
+      this.setState({start_running: false});
       return;
     }
-    let success = false;
+    // 目前停止，然后开始
     this.setState({start_running: true});
+    let success = false;
     while (success == false){
       try {
-        await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00]);
-        console.log('start success')
+        await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x01, this.state.heater, 0x00, 0x00, 0x00]);
+        console.log('Started')
         success = true;
         this.setState({start_running: false});
       } catch (error) {
         console.log(error)
       }
     }
+    
     this.start_timer();
   };
 
@@ -176,13 +224,13 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       connectToaster();
       return;
     }
-    console.log('stopCW');
+    // console.log('stopCW');
     let success = false;
     this.setState({stop_running: true});
     while (success == false){
       try {
-        await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00]);
-        console.log('stop success');
+        await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x00, this.state.heater, 0x00, 0x00, 0x00]);
+        console.log('Stopped');
         success = true;
         this.setState({stop_running: false});
       } catch (error) {
@@ -201,10 +249,10 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
                 <AnimatedCircularProgress
                     size={this.screenWidth*0.8}
                     width={20}
-                    fill={(this.state.full_time - this.state.timeRemaining)/(this.state.full_time)*100}
+                    fill={this.state.cyclePercentage}
                     rotation={0}
-                    tintColor="#00e0ff"
-                    duration={this.state.easingDuration}
+                    tintColor={this.state.curHotCold==1?'#ff0000':'#00e0ff'}
+                    duration={0}
                     lineCap="round"
                     easing={Easing.linear}
                     backgroundColor="#3d5875" />
@@ -218,7 +266,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
               {i18n.t("TimeRemaining")}
               </Text>
               <Text style={[styles.TimerText]}>
-                {this.formatTime(this.state.timeRemaining)}
+                {this.state.running_state==0? '--' : this.formatTime(this.state.timeRemaining)}
               </Text>
               <View   style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'  }}>
                 <TouchableHighlight onPress={this.startCW} style={[styles.startButton]}>

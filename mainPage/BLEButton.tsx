@@ -37,7 +37,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
     handleDisconnect = () => {
         Alert.alert(
             '',
-            'Confirm Bluetooth Disconnect?',
+            i18n.t('ConfirmDisconnect'),
             [  
                 {
                     text: 'Cancel',

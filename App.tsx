@@ -77,7 +77,7 @@ function SettingsStackScreen() {
 const Tab = createBottomTabNavigator();
 
 export default function App() {
-  const [timerRunning, setTimerRunning] = React.useState(false);
+  const [runningState, setRunningState] = React.useState(0);
   const [isLoaded, setLoaded] = React.useState(false);
   let timer: any
   
@@ -134,8 +134,8 @@ export default function App() {
       
     // }, 100);
     
-    eventEmitter.on('timerRunning', (data) => {
-      setTimerRunning(data);
+    eventEmitter.on('Notify', (data) => {
+      setRunningState(data[7]);
     });
     checkAndSetInitialData();
     return () => {
@@ -229,7 +229,7 @@ export default function App() {
           },
         })}>
         <Tab.Screen name="Play" component={HomeStackScreen} options={{ 
-          tabBarBadge: timerRunning? '' : undefined, 
+          tabBarBadge: runningState? '' : undefined, 
           tabBarLabel: i18n.t('Home'),
           }} 
         />
