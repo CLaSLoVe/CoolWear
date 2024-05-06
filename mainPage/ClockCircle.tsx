@@ -62,8 +62,9 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       this.setState({ disabled: !data });
     });
     eventEmitter.on('ModeSelect', (data: any) => {
+      // console.log('ModeSelect', data)
       if (this.state.running_state == 1){
-        this.stop_timer();
+        return
       }
       this.setState(
         { 
@@ -71,12 +72,23 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
           timeRemaining: data.totalRunTime*60 
         },
         () => {
-          this.start_timer()
+          let hotFirst = data.actionList[0][1] ? 0x01 : 0x00;
+          let numCycles = Math.floor(data.actionList.length/2);
+          let coldTime = 0;
+          let hotTime = 0;
+          if (data.actionList[0][1]){
+            coldTime = data.actionList[1][0]
+            hotTime = data.actionList[0][0]
+          } else {
+            hotTime = data.actionList[1][0]
+            coldTime = data.actionList[0][0]
+          }
+          this.startCW(false, [0xa2, 0x01, 0x00, hotFirst, numCycles, coldTime, hotTime])
         }
       );
     });
     eventEmitter.on('Notify', (data: any) => {
-      // console.log(data);
+      console.log(data);
       this.setState({
         timeRemaining: data[1]*256 + data[2] + 1,
         curHotCold: data[8]>>4,
@@ -142,7 +154,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
   pause_timer = () => {
     // clearInterval(this.timer);
     this.setState({running_state: 2});
-    eventEmitter.emit('timerRunning', false);
+    // eventEmitter.emit('timerRunning', false);
     // console.log('Paused')
   }
 
@@ -156,13 +168,13 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
          () => {}
         );
     });
-    eventEmitter.emit('timerRunning', false);
+    // eventEmitter.emit('timerRunning', false);
     // console.log('Stopped')
   }
 
 
 
-  startCW = async() =>{
+  startCW = async(auto:boolean=true, par:any=[]) =>{
     if (this.state.disabled){
       connectToaster();
       return;
@@ -176,7 +188,11 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       let success = false;
       while (this.state.running_state == 1){
         try {
-          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x02, this.state.heater, 0x00, 0x00, 0x00]);
+          if (auto){
+            await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x02, this.state.heater, 0x00, 0x00, 0x00]);
+          } else {
+            
+          }
           console.log('Paused')
           success = true;
         } catch (error) {
@@ -192,7 +208,11 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       let success = false;
       while (this.state.running_state == 2){
         try {
-          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x03, this.state.heater, 0x00, 0x00, 0x00]);
+          if (auto){
+            await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x03, this.state.heater, 0x00, 0x00, 0x00]);
+          } else {
+            // await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, par);
+          }
           console.log('Continued')
           success = true;
         } catch (error) {
@@ -207,7 +227,12 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     let success = false;
     while (success == false){
       try {
-        await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x01, this.state.heater, 0x00, 0x00, 0x00]);
+        if (auto){
+          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x01, this.state.heater, 0x00, 0x00, 0x00]);
+        } else {
+          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, par);
+          console.log(par)
+        }
         console.log('Started')
         success = true;
         this.setState({start_running: false});
@@ -269,7 +294,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
                 {this.state.running_state==0? '--' : this.formatTime(this.state.timeRemaining)}
               </Text>
               <View   style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'  }}>
-                <TouchableHighlight onPress={this.startCW} style={[styles.startButton]}>
+                <TouchableHighlight onPress={() => this.startCW()} style={[styles.startButton]}>
                   {this.state.start_running ? <ActivityIndicator size="large" color="white" /> : 
                   this.state.running_state == 0 ? 
                   <FastImage source={require('../assets/start.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/> : 

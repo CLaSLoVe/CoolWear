@@ -20,7 +20,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
     constructor(props: {}) {
         super(props);
         this.state = {
-          bleState: 0,
+          bleState: 0, // 0: disconnected, 1: connecting, 2: connected
           disabled: false, 
           data: [0],
         };
