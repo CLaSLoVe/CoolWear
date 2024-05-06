@@ -52,9 +52,10 @@ export default class Modes extends Component<ModesProps, {}> {
         eventEmitter.on('Notify', (data: any) => {
             this.setState({ BLEConnection: true });
         });
-        eventEmitter.on('BLEConnection', (data: any) => {
-            this.setState({ BLEConnection: data });
-        });
+        console.log('Mode Mounted')
+        // eventEmitter.on('BLEConnection', (data: any) => {
+        //     this.setState({ BLEConnection: data });
+        // });
     }
     
     selectMode = () => {

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Suspense } from 'react';
 import { Button, Image, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator,  } from '@react-navigation/native-stack';
@@ -14,10 +15,20 @@ import { initReactI18next } from 'react-i18next';
 import SplashScreen from 'react-native-splash-screen'
 import RNRestart from 'react-native-restart'; 
 import { ToastProvider } from 'react-native-toast-notifications';
+// import loadable from '@loadable/component'
+
+// const ModePagePromise = import('./modePage')
+// const ModePage = React.lazy(() => ModePagePromise);
+// const ModePage = import('./modePage')
 
 type Props = {
   navigation: any;
 };
+
+// type Props2 = {
+//   navigation: any;
+//   isBLEConnected: boolean;
+// };
 
 function CustomScreen({ navigation }: Props) {
   return (
@@ -31,7 +42,7 @@ function HomeScreen({ navigation }: Props) {
   );
 }
 
-function ModeScreen({ navigation }: Props) {
+function ModeScreen({ navigation, }: Props) {
   return (
     <ModePage navigation={navigation}/>
   );
@@ -79,6 +90,7 @@ const Tab = createBottomTabNavigator();
 export default function App() {
   const [runningState, setRunningState] = React.useState(0);
   const [isLoaded, setLoaded] = React.useState(false);
+  const [isBLEConnected, setBLEConnected] = React.useState(false);
   let timer: any
   
   useLayoutEffect(() => {
@@ -105,6 +117,7 @@ export default function App() {
       });
     });
 
+
     SplashScreen.hide();   
 
     storage.load({
@@ -127,21 +140,18 @@ export default function App() {
 
   }, []);
 
-  useEffect(() => {
-    // storage.clearMap();
-    
-    // timer = setTimeout(() => {
-      
-    // }, 100);
-    
+  useEffect(() => {    
     eventEmitter.on('Notify', (data) => {
       setRunningState(data[7]);
+    });
+    eventEmitter.on('BLEConnection', (data) => {
+      setBLEConnected(data);
     });
     checkAndSetInitialData();
     return () => {
 
       timer && clearTimeout(timer);
-    }
+    };
   }
   
   , []);
@@ -190,12 +200,16 @@ export default function App() {
 
   return (
     <ToastProvider offset={100}>
+      <View>
+
+      </View>
     <NavigationContainer>
       <Tab.Navigator screenOptions={({ route }) => ({
           headerShown: false,
           tabBarStyle: {
             height: 80,
           },
+          lazy: false,
           tabBarLabelStyle: {
             fontSize: 16,
           },
@@ -233,7 +247,7 @@ export default function App() {
           tabBarLabel: i18n.t('Home'),
           }} 
         />
-        <Tab.Screen name="Mode" component={ModeStackScreen} options={{tabBarLabel: i18n.t('Mode')}}/>
+        <Tab.Screen name="Mode" component={ModeStackScreen } options={{tabBarLabel: i18n.t('Mode')}}/>
         <Tab.Screen name="Settings" component={SettingsStackScreen} options={{tabBarLabel: i18n.t('Settings')}}/>
       </Tab.Navigator>
     </NavigationContainer>

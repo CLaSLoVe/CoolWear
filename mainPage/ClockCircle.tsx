@@ -88,7 +88,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       );
     });
     eventEmitter.on('Notify', (data: any) => {
-      console.log(data);
+      // console.log(data);
       this.setState({
         timeRemaining: data[1]*256 + data[2] + 1,
         curHotCold: data[8]>>4,

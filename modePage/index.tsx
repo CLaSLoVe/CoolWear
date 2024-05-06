@@ -19,6 +19,7 @@ export default class ModePage extends Component<{navigation:any}, {existModes:an
         eventEmitter.on('refreshModes', this.refreshModes);
         eventEmitter.on('BLEConnection', (data: any) => {
             this.setState({ BLEConnection: data });
+            console.log('BLEConnection: ', data)
         });
     }
 
@@ -35,7 +36,7 @@ export default class ModePage extends Component<{navigation:any}, {existModes:an
     return (
         <ScrollView>
             <View style={[globalStyles.page]}>
-            {existModes.map((item: { title: string; totalRunTime: number; temperature: number; actionList: any[]; locked:boolean; timeId:string;}, index: React.Key | null | undefined) => (
+            {existModes.map((item: { title: string; totalRunTime: number; temperature: number; actionList: any[]; locked:boolean; timeId:string; BLEConnection:boolean}, index: React.Key | null | undefined) => (
                 <Modes 
                     key={index}
                     title={item.title}
