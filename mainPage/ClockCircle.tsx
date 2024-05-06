@@ -8,6 +8,9 @@ import i18n from '../locales';
 import FastImage from 'react-native-fast-image'
 import { Toast } from 'react-native-toast-notifications';
 
+const Full321 = 3000;
+const oneSecond = 1000;
+
 export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number}> {
   // timer: NodeJS.Timeout | undefined;
   screenWidth: number = 640;
@@ -22,7 +25,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       timeRemaining: 0, // 剩余时间
       curHotCold: 0, // 当前是热水还是冷水
       cyclePercentage: 0, // 当前周期百分比
-      three_two_one: 3000, // 3 2 1 倒计时
+      three_two_one: Full321, // 3 2 1 倒计时
       countingDown: false, // 是否正在倒计时
       heater: 0x00,
     };
@@ -92,12 +95,16 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       this.setState({
         timeRemaining: data[1]*256 + data[2] + 1,
         curHotCold: data[8]>>4,
-        // running_state: data[8] - data[8]>>4,
+        running_state: data[8] - data[8]>>4,
       });
       if (data[7]){
         if (data[8]%16 == 0){
-          this.setState({running_state: 1});
-          this.setState({cyclePercentage: Math.round((data[10]*256+data[11])/(data[9]*60)*100)})
+          this.setState({running_state: 1,
+            cyclePercentage: Math.round((data[10]*256+data[11])/(data[9]*60)*100),
+            countingDown: false,
+            three_two_one: Full321,
+          });
+          eventEmitter.emit('countingDown', false);
         }else{
           this.setState({running_state: 2});
         }
@@ -107,6 +114,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
           cyclePercentage: 0
         });
       };
+      console.log(this.state.running_state);
     });
     
   }
@@ -120,21 +128,22 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
 
   start_timer = () => {
     if (this.state.running_state == 2){
-      this.setState({running_state: 1});
+      // this.setState({running_state: 1});
       return;
     } else if (this.state.running_state == 1){
-      this.setState({running_state: 2});
+      // this.setState({running_state: 2});
       return;
     }
     // 倒计时 321
     this.setState({countingDown: true});
+    eventEmitter.emit('countingDown', true);
     let cdTimer = setInterval(() => {
-      this.setState({three_two_one: this.state.three_two_one-1000});
+      this.setState({three_two_one: this.state.three_two_one-oneSecond});
       // console.log(this.state.three_two_one);
       // 倒计时结束
       if (this.state.three_two_one <= 0){
         clearInterval(cdTimer);
-        this.setState({countingDown: false, three_two_one: 3000});
+        // this.setState({countingDown: false, three_two_one: Full321});
         // 开始计时
         // this.timer = setInterval(() => {
         //   if (this.state.timeRemaining <= 0){
@@ -145,15 +154,15 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
         //     timeRemaining: this.state.timeRemaining-1
         //   });
         // }, 1000);
-        this.setState({running_state: 1});
+        // this.setState({running_state: 1});
       }
-    }, 1000);
+    }, oneSecond);
      
   }
 
   pause_timer = () => {
     // clearInterval(this.timer);
-    this.setState({running_state: 2});
+    // this.setState({running_state: 2});
     // eventEmitter.emit('timerRunning', false);
     // console.log('Paused')
   }

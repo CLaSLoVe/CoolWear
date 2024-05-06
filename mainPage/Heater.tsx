@@ -7,7 +7,7 @@ import {Picker} from '@react-native-picker/picker';
 import i18n from '../locales';
 import EventEmitter from 'eventemitter3';
 
-export default class Heater extends Component<{}, { heater: boolean, coldTemperature: number, hotTemperature: number, compressionState:number, running_state:number}> {
+export default class Heater extends Component<{}, { heater: boolean, coldTemperature: number, hotTemperature: number, compressionState:number, running_state:number, isBLEConnected:boolean, countingDown:boolean}> {
     constructor(props: {}) {
         super(props);
         this.state = {
@@ -16,6 +16,8 @@ export default class Heater extends Component<{}, { heater: boolean, coldTempera
             hotTemperature: 0, // 热水温度
             compressionState: 0, // 压缩机状态
             running_state: 0, // 运行状态
+            isBLEConnected: false, // 是否连接蓝牙
+            countingDown: false,
         };
     }
 
@@ -31,6 +33,12 @@ export default class Heater extends Component<{}, { heater: boolean, coldTempera
             } else {
                 this.setState({ heater: true });
             }
+        });
+        eventEmitter.on('BLEConnection', (data: any) => {
+            this.setState({ isBLEConnected: data });
+        });
+        eventEmitter.on('countingDown', (data: any) => {
+            this.setState({ countingDown: data });
         });
     }
 
@@ -68,7 +76,7 @@ export default class Heater extends Component<{}, { heater: boolean, coldTempera
                         <Switch
                             trackColor={{ false: "#767577", true: "#ff0000" }}
                             value={this.state.heater}
-                            disabled={this.state.running_state != 0}
+                            disabled={this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown}
                             onValueChange={(value) => {
                                 this.setState({ heater: value });
                                 this.setHeaterDrainage(value);
@@ -92,6 +100,7 @@ export default class Heater extends Component<{}, { heater: boolean, coldTempera
                         <Image source={require('../assets/compression.png')} style={{aspectRatio: 1, width: "20%", alignSelf: 'center'}} fadeDuration={100}/>
                         <View style={{width: 130}}>
                             <Picker
+                                enabled={!(this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown)}
                                 mode='dropdown'
                                 selectedValue={this.state.compressionState}
                                 onValueChange={(itemValue, itemIndex) =>
@@ -128,6 +137,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 3,
+        height: 50,
     },
     temperatureFont: {
         marginLeft: 10,
