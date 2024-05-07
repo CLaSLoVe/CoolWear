@@ -46,6 +46,11 @@ export const resources = {
       low: 'Low',
       mid: 'Mid',
       high: 'High',
+      Heater: 'Heater',
+      Drainage: 'Drainage',
+      HotFirst: 'Hot First',
+      StartFailed: 'Failed to start, please try again.',
+      PleaseStop: 'Please stop current mode first',
 
     },
   },
@@ -91,6 +96,11 @@ export const resources = {
       low: '低',
       mid: '中',
       high: '高',
+      Heater: '加热',
+      Drainage: '排水',
+      HotFirst: '热先',
+      StartFailed: '启动失败，请重试。',
+      PleaseStop: '请先停止当前模式',
 
     },
   },

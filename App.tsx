@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Suspense } from 'react';
 import { Button, Image, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator,  } from '@react-navigation/native-stack';
@@ -8,7 +7,7 @@ import MainPage from "./mainPage";
 import ModePage from "./modePage";
 import SettingPage from './settingPage';
 import {CustomPage} from './settingPage/Settings';
-import {eventEmitter, storage} from "./GlobalVars";
+import {eventEmitter, storage, isRunningFlag} from "./GlobalVars";
 import { useEffect, useLayoutEffect } from 'react';
 import i18n, {resources} from './locales/index';
 import { initReactI18next } from 'react-i18next';
@@ -90,10 +89,11 @@ const Tab = createBottomTabNavigator();
 export default function App() {
   const [runningState, setRunningState] = React.useState(0);
   const [isLoaded, setLoaded] = React.useState(false);
-  const [isBLEConnected, setBLEConnected] = React.useState(false);
   let timer: any
   
   useLayoutEffect(() => {
+
+    
     storage.load({
       key: 'settings',
       id: 'firstRun',
@@ -117,7 +117,7 @@ export default function App() {
       });
     });
 
-
+    // storage.clearMap();
     SplashScreen.hide();   
 
     storage.load({
@@ -142,10 +142,7 @@ export default function App() {
 
   useEffect(() => {    
     eventEmitter.on('Notify', (data) => {
-      setRunningState(data[7]);
-    });
-    eventEmitter.on('BLEConnection', (data) => {
-      setBLEConnected(data);
+      setRunningState(isRunningFlag(data[7])?1:0);
     });
     checkAndSetInitialData();
     return () => {
@@ -165,6 +162,7 @@ export default function App() {
       actionList: [[1, false], [2, true], [3, false], [2, true], [4, false], [2, true]],
       timeId: "init",
       locked: true,
+      automode: true,
     };
     storage.load({
       key: 'modes',

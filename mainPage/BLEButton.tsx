@@ -142,13 +142,13 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
         return;
       }
         let success = false;
-        while (success == false){
+        while (!success){
           try {
             await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
             console.log('connect char success')
             success = true;
           } catch (error) {
-            console.log('.')
+            // console.log('.')
           }
         }
         readDataFromDevice();

@@ -11,6 +11,7 @@ interface ModesProps {
     temperature: number;
     timeId: string;
     locked: boolean;
+    automode: boolean;
     actionList: any[];
     BLEConnection: any;
 }
@@ -71,11 +72,14 @@ export default class Modes extends Component<ModesProps, {}> {
             actionList: this.props.actionList,
             timeId: this.props.timeId,
             locked: this.props.locked,
+            automode: this.props.automode,
         });
         eventEmitter.emit('ModeSelect', 
             {totalRunTime: this.props.totalRunTime,
             temperature: this.props.temperature,
-            actionList: this.props.actionList,});
+            actionList: this.props.actionList,
+            automode: this.props.automode,
+        });
     }
 
 

@@ -21,7 +21,7 @@ interface CustomProps {
 
 
 // 自定义页面细节
-export class CustomPage extends Component<SettingProps, {temperature:number, hotDur:number, coldDur:number,  modeHotCold:string, radioButtons:{ id: string; label: string }[], totalRunTime:number, numCycles:number, title:string}> {
+export class CustomPage extends Component<SettingProps, {temperature:number, hotDur:number, coldDur:number,  modeHotCold:string, radioButtons:{ id: string; label: string }[], totalRunTime:number, numCycles:number, title:string, hotFirst: boolean}> {
     constructor(props: SettingProps) {
         super(props);
         this.state = {
@@ -37,6 +37,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
             numCycles: 1,
             totalRunTime: 0,
             title: '',
+            hotFirst: false,
         };
     }
 
@@ -67,17 +68,19 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
         let modeHotCold = this.state.modeHotCold;
         if (modeHotCold=='3'){
             for (let i = 0; i < numCycles; i++) {
-                actionList.push([coldDur, false]);
-                actionList.push([hotDur, true]);
+                if (this.state.hotFirst){
+                    actionList.push([hotDur, true]);
+                    actionList.push([coldDur, false]);
+                }
+                else{
+                    actionList.push([coldDur, false]);
+                    actionList.push([hotDur, true]);
+                }
             }
         }else if (modeHotCold=='1'){
-            for (let i = 0; i < numCycles; i++) {
-                actionList.push([hotDur, true]);
-            }
+            actionList.push([hotDur, true]);
         }else if (modeHotCold=='2'){
-            for (let i = 0; i < numCycles; i++) {
-                actionList.push([coldDur, false]);
-            }
+            actionList.push([coldDur, false]);
         };
         return actionList;
     }
@@ -94,6 +97,8 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                 actionList: this.calcActionList(),
                 timeId: currentDate.toString(),
                 locked: false,
+                automode: false,
+                hotFirst: this.state.hotFirst,
               },
           }).then(() => {
             this.props.navigation.navigate('SettingsScreen');
@@ -234,7 +239,21 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                         selectedId={this.state.modeHotCold}
                     />
                     
+                    
                 </View>
+                    {this.state.modeHotCold=='3'?
+                    <View  style={[styles.settingLine]}>
+                        <Switch
+                            trackColor={{ false: "#767577", true: "#ff0000" }}
+                            value={this.state.hotFirst}
+                            onValueChange={(value) => {
+                                this.setState({
+                                    hotFirst: value,
+                                });
+                            }} />
+                    <Text style={{fontSize: 20, color: 'black', }}>{i18n.t('HotFirst')}</Text>
+                </View>:null
+                    }
                 
                 {content}
 

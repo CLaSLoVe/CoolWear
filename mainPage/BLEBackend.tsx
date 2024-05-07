@@ -378,6 +378,7 @@ const ScanDevicesScreen = () => {
   async function startCW() {
     try {
         await BleManager.write(peripheralId, "6e400020-b5a3-f393-e0a9-e50e24dcca9d", "6e400023-b5a3-f393-e0a9-e50e24dcca9d", [0xa1, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00]);
+        console.log('原神，____');
     } catch (error) {
     }
   };
@@ -385,6 +386,7 @@ const ScanDevicesScreen = () => {
   async function stopCW() {
     try {
         await BleManager.write(peripheralId, "6e400020-b5a3-f393-e0a9-e50e24dcca9d", "6e400023-b5a3-f393-e0a9-e50e24dcca9d", [0xa1, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00]);
+        console.log('停止');
     } catch (error) {
     }
   }

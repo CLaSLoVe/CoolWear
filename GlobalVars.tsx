@@ -21,6 +21,8 @@ export const globalVals = {
   hotDurationRange: [1, 30],
   coldDurationRange: [1, 30],
   numCycleRange: [1, 10],
+  tryTimes: 15,
+
 };
 
 const BleManagerModule = NativeModules.BleManager;
@@ -76,6 +78,29 @@ export async function readDataFromDevice(){
 
 export function  connectToaster () {
   Toast.show(i18n.t('PleaseConnectBLE'), {
+    type: "warning",
+    placement: "bottom",
+    duration: 2000,
+    animationType: "zoom-in",
+  });
+}
+
+export function  startToaster () {
+  Toast.show(i18n.t('StartFailed'), {
+    type: "warning",
+    placement: "bottom",
+    duration: 2000,
+    animationType: "zoom-in",
+  });
+}
+
+export function isRunningFlag (flag:any) {
+  return flag == 1 || flag == 2 || flag == 3;
+}
+
+
+export function stopCurrentToaster () {
+  Toast.show(i18n.t('PleaseStop'), {
     type: "warning",
     placement: "bottom",
     duration: 2000,
