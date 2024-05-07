@@ -1,6 +1,6 @@
 import { Text, StyleSheet, View, TouchableHighlight, ActivityIndicator, Dimensions, Easing, Image  } from 'react-native'
 import React, { Component } from 'react'
-import { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag } from '../GlobalVars';
+import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag } from '../GlobalVars';
 import { eventEmitter } from '../GlobalVars';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import BleManager from 'react-native-ble-manager';
@@ -11,7 +11,7 @@ import { Toast } from 'react-native-toast-notifications';
 const Full321 = 3000;
 const oneSecond = 1000;
 
-export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number}> {
+export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean}> {
   // timer: NodeJS.Timeout | undefined;
   screenWidth: number = 640;
   constructor(props: {}) {
@@ -28,6 +28,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       three_two_one: Full321, // 3 2 1 倒计时
       countingDown: false, // 是否正在倒计时
       heater: 0x00,
+      waiting: false,
     };
   }
 
@@ -59,6 +60,11 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       } else {
         this.setState({ heater: 0x00 });
       };
+      this.setState({ waiting: true });
+      let timer = setInterval(() => {
+        this.setState({ waiting: false });
+        clearInterval(timer);
+      }, globalVals.heaterWaitingTime);
     });
     eventEmitter.on('BLEConnection', (data: any) => {
       this.setState({ disabled: !data });
@@ -324,7 +330,11 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
                     easing={Easing.linear}
                     backgroundColor="#3d5875" />
             </View>
-            {this.state.countingDown ?
+            {this.state.waiting ?
+            <View style={[styles.TextContainer]}>
+              <ActivityIndicator size="large" color="white" /> 
+            </View>:
+            this.state.countingDown ?
             <View style={[styles.TextContainer]}>
               <Text style={[styles.CountDownText]}>{Math.floor(this.state.three_two_one / 1000)}</Text> 
             </View>:

@@ -22,6 +22,7 @@ export const globalVals = {
   coldDurationRange: [1, 30],
   numCycleRange: [1, 10],
   tryTimes: 15,
+  heaterWaitingTime: 2500,
 
 };
 
