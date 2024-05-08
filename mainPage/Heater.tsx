@@ -7,7 +7,7 @@ import {Picker} from '@react-native-picker/picker';
 import i18n from '../locales';
 import EventEmitter from 'eventemitter3';
 
-export default class Heater extends Component<{}, { heater: boolean, drainage:boolean, coldTemperature: number, hotTemperature: number, compressionState:number, running_state:number, isBLEConnected:boolean, countingDown:boolean}> {
+export default class Heater extends Component<{}, { heater: boolean, drainage:boolean, coldTemperature: number, hotTemperature: number, compressionState:number, running_state:number, isBLEConnected:boolean, countingDown:boolean, disabledHeater:boolean}> {
     constructor(props: {}) {
         super(props);
         this.state = {
@@ -19,6 +19,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
             running_state: 0, // 运行状态
             isBLEConnected: false, // 是否连接蓝牙
             countingDown: false,
+            disabledHeater: false,
         };
     }
 
@@ -77,14 +78,19 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                         <Switch
                             trackColor={{ false: "#767577", true: "#ff0000" }}
                             value={this.state.heater}
-                            disabled={this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown}
+                            disabled={this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown || this.state.disabledHeater}
                             onValueChange={(value) => {
                                 this.setState({
                                     heater: value,
+                                    disabledHeater: true,
                                 },()=>{
                                     this.setHeaterDrainage(this.state.heater, this.state.drainage);
                                     eventEmitter.emit('Heater', value);
                                 });
+                                let timer = setTimeout(() => {
+                                    this.setState({disabledHeater: false});
+                                    clearTimeout(timer);
+                                }, globalVals.heaterWaitingTime);
                                 
                             }} />
                         <Text style={[styles.h5]}>{i18n.t('Heater')}</Text>

@@ -8,17 +8,17 @@ import i18n from '../locales';
 import FastImage from 'react-native-fast-image'
 import { Toast } from 'react-native-toast-notifications';
 
-const Full321 = 3000;
+const Full321 = 5000;
 const oneSecond = 1000;
 
-export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean}> {
+export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean, ellipsis:string}> {
   // timer: NodeJS.Timeout | undefined;
   screenWidth: number = 640;
   constructor(props: {}) {
     super(props);
     this.state = {
       full_time: 0,
-      disabled: true, // 是否禁用按钮,true
+      disabled: false, // 是否禁用按钮,true
       start_running: false,
       stop_running: false, 
       running_state: 0,  // 0: 停止 1: 运行 2: 暂停
@@ -29,6 +29,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       countingDown: false, // 是否正在倒计时
       heater: 0x00,
       waiting: false,
+      ellipsis: '.',
     };
   }
 
@@ -67,7 +68,17 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       }, globalVals.heaterWaitingTime);
     });
     eventEmitter.on('BLEConnection', (data: any) => {
-      this.setState({ disabled: !data });
+      this.setState({
+        disabled: !data,
+      });
+      if (!data){
+        this.setState({
+          start_running: false,
+          stop_running: false, 
+          countingDown: false,
+          running_state: 0,
+        })
+      }
     });
     eventEmitter.on('ModeSelect', (data: any) => {
       if (this.state.running_state == 1){
@@ -172,16 +183,24 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     this.setState({
       countingDown: true,
       three_two_one: Full321,
+      ellipsis: 'Loading\n',
     });
 
     eventEmitter.emit('countingDown', true);
     let cdTimer = setInterval(() => {
       this.setState({three_two_one: this.state.three_two_one-oneSecond});
+      this.setState({ellipsis: 'Loading\n'+'.'.repeat(Math.floor((Full321 - this.state.three_two_one)/1000)) },()=>{console.log(this.state.ellipsis)});
       // console.log(this.state.three_two_one);
+      if (this.state.running_state == 1){
+        clearInterval(cdTimer);
+        return;
+      }
       // 倒计时结束
       if (this.state.three_two_one <= 0){
         clearInterval(cdTimer);
-        // this.setState({countingDown: false, three_two_one: Full321});
+        this.setState({countingDown: false});
+        startToaster();
+        
         // 开始计时
         // this.timer = setInterval(() => {
         //   if (this.state.timeRemaining <= 0){
@@ -336,7 +355,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
             </View>:
             this.state.countingDown ?
             <View style={[styles.TextContainer]}>
-              <Text style={[styles.CountDownText]}>{Math.floor(this.state.three_two_one / 1000)}</Text> 
+              <Text style={[styles.CountDownText]}>{this.state.ellipsis}</Text> 
             </View>:
             <View style={[styles.TextContainer]}>
               <Text style={[styles.h5]}>
@@ -411,7 +430,7 @@ const styles = StyleSheet.create({
   },
   CountDownText:{
     color:'black',
-    fontSize:128,
+    fontSize:48,
     textAlign:'center',
     textAlignVertical:'center',
     fontWeight:'bold',
