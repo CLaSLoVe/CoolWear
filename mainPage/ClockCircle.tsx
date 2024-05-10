@@ -18,7 +18,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     super(props);
     this.state = {
       full_time: 0,
-      disabled: false, // 是否禁用按钮,true
+      disabled: true, // 是否禁用按钮,true
       start_running: false,
       stop_running: false, 
       running_state: 0,  // 0: 停止 1: 运行 2: 暂停

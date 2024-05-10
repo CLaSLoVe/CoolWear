@@ -5,7 +5,7 @@ import ClockCircle from './ClockCircle'
 import Heater from './Heater'
 import { globalStyles } from '../GlobalVars'
 import i18n from '../locales'
-
+// import ScanDevicesScreen from './BLEBackend'
 export default class MainPage extends Component {
   
   render() {
@@ -13,6 +13,7 @@ export default class MainPage extends Component {
       <ScrollView>
           <View style={[globalStyles.page]}>
           <BLEButton />
+          {/* <ScanDevicesScreen /> */}
           <ClockCircle />
           <Heater />
         </View>

@@ -26,7 +26,7 @@ import BleManager, {
   Peripheral,
 } from 'react-native-ble-manager';
 
-const SECONDS_TO_SCAN_FOR = 1;
+const SECONDS_TO_SCAN_FOR = 10;
 const SERVICE_UUIDS: string[] = [];
 const ALLOW_DUPLICATES = true;
 
@@ -112,9 +112,10 @@ const ScanDevicesScreen = () => {
 
   const handleDiscoverPeripheral = (peripheral: Peripheral) => {
     console.debug('[handleDiscoverPeripheral] new BLE peripheral=', peripheral);
-    if (peripheral.name != 'CoolWear') {
-        return;
-    }
+    // if (peripheral.name != 'CoolWear') {
+      
+    //     return;
+    // }
     setPeripherals(map => {
       return new Map(map.set(peripheral.id, peripheral));
     });
@@ -393,7 +394,7 @@ const ScanDevicesScreen = () => {
 
   return (
     <>
-      {/* <StatusBar />
+       <StatusBar />
       <SafeAreaView style={styles.body}>
         <Pressable style={styles.scanButton} onPress={startScan}>
           <Text style={styles.scanButtonText}>
@@ -435,7 +436,7 @@ const ScanDevicesScreen = () => {
           keyExtractor={item => item.id}
         />
         
-      </SafeAreaView> */}
+      </SafeAreaView> 
     </>
   );
 };

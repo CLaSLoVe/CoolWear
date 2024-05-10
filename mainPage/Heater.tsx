@@ -119,14 +119,14 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                         
                         <View style={[styles.temperature]}>
 
-                            <Image source={require('../assets/hot.png')} style={{aspectRatio: 1, width: "20%", alignSelf: 'center'}} fadeDuration={100}/>
-                            <Text style={[styles.temperatureFont]}>{this.state.coldTemperature}</Text>   
+                            <Image source={require('../assets/cold.png')} style={{aspectRatio: 1, width: "20%", alignSelf: 'center'}} fadeDuration={100}/>
+                            <Text style={[styles.temperatureFont]}>{this.state.coldTemperature/10}</Text>   
                             <Text style={[styles.OC]}>{'\u2103'}</Text>  
                         </View>
                         <View style={[styles.temperature]}>
 
-                            <Image source={require('../assets/cold.png')} style={{aspectRatio: 1, width: "20%", alignSelf: 'center'}} fadeDuration={100}/>
-                            <Text style={[styles.temperatureFont]}>{this.state.hotTemperature}</Text>
+                            <Image source={require('../assets/hot.png')} style={{aspectRatio: 1, width: "20%", alignSelf: 'center'}} fadeDuration={100}/>
+                            <Text style={[styles.temperatureFont]}>{this.state.hotTemperature/10}</Text>
                             <Text style={[styles.OC]}>{'\u2103'}</Text>  
                         </View>
                         <View style={[styles.temperature]}>
@@ -160,7 +160,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         // justifyContent: 'center',
-        // marginTop: 30,
+        marginTop: 10,
+        marginBottom: 20,
     },
     h5: {
         fontSize: 24,
@@ -170,6 +171,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 3,
         height: 50,
+        marginBottom: 10,
     },
     temperatureFont: {
         marginLeft: 10,
