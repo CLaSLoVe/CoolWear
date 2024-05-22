@@ -86,7 +86,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
         return
       }
       if (data.automode){
-        this.manualMode(false, 0, false, 0, 0, 0);
+        this.manualMode(false, 0, false, 0, 0, 0, false);
         return
       }
       this.setState(
@@ -100,15 +100,25 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
           let coldTime = 0;
           let hotTime = 0;
           let temperature = data.temperature;
-          if (data.actionList[0][1]){
-            coldTime = data.actionList[1][0]
-            hotTime = data.actionList[0][0]
-          } else {
-            hotTime = data.actionList[1][0]
-            coldTime = data.actionList[0][0]
+          let isSingle = false;
+          console.log(data);
+          if (data.actionList.length == 1){
+            isSingle = true;
+            coldTime = data.actionList[0][0];
+            hotTime = data.actionList[0][0];
+          }else{
+            if (data.actionList[0][1]){
+              coldTime = data.actionList[1][0]
+              hotTime = data.actionList[0][0]
+            } else {
+              hotTime = data.actionList[1][0]
+              coldTime = data.actionList[0][0]
+            }
           }
           
-          this.manualMode(true, numCycles, hotFirst, coldTime, hotTime, temperature)
+          
+          
+          this.manualMode(true, numCycles, hotFirst, coldTime, hotTime, temperature, isSingle)
         }
       );
     });
@@ -140,21 +150,22 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     // console.log(this.state.countingDown);
   }
 
-  manualMode = async(on:boolean, numCycles:number, hotFirst:boolean, coldDur:number, hotDur:number, temperature:number) => {
+  manualMode = async(on:boolean, numCycles:number, hotFirst:boolean, coldDur:number, hotDur:number, temperature:number, isSingle:boolean) => {
+    try {
+      await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x03, temperature, 0x00, 0x00, 0x00, 0x00]);
+      console.log('设置温度为', temperature);
+    } catch (error) {
+      console.log(error)
+    };
     let success = false;
-    // while (!success){
-    //   try {
-    //     await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x03, temperature, 0x00, 0x00, 0x00, 0x00]);
-    //     console.log('设置温度为', temperature);
-    //     success = true;
-    //   } catch (error) {
-    //     console.log(error)
-    //   }
-    // }
-    // success = false;
     while (!success){
       try {
-        await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa2, 0x01, on?0x01:0x00, hotFirst?0x01:0x00, numCycles, coldDur, hotDur]);
+        if (isSingle){
+          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa2, 0x02, on?0x01:0x00, hotFirst?0x01:0x00, hotFirst?hotDur:coldDur, 0x00, 0x00]);
+        }else{
+          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa2, 0x01, on?0x01:0x00, hotFirst?0x01:0x00, numCycles, coldDur, hotDur]);
+        }
+        
         console.log('设置为手动模式');
         success = true;
         this.startCW();
@@ -183,13 +194,13 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     this.setState({
       countingDown: true,
       three_two_one: Full321,
-      ellipsis: 'Loading\n',
+      ellipsis: i18n.t('Loading')+'\n',
     });
 
     eventEmitter.emit('countingDown', true);
     let cdTimer = setInterval(() => {
       this.setState({three_two_one: this.state.three_two_one-oneSecond});
-      this.setState({ellipsis: 'Loading\n'+'.'.repeat(Math.floor((Full321 - this.state.three_two_one)/1000)) },()=>{console.log(this.state.ellipsis)});
+      this.setState({ellipsis: i18n.t('Loading')+'\n'+'.'.repeat(Math.floor((Full321 - this.state.three_two_one)/1000)) },()=>{console.log(this.state.ellipsis)});
       // console.log(this.state.three_two_one);
       if (this.state.running_state == 1){
         clearInterval(cdTimer);

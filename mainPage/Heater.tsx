@@ -29,11 +29,23 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                 coldTemperature: Math.floor((data[3] * 256 + data[4]) / 10),
                 hotTemperature: Math.floor((data[5] * 256 + data[6]) / 10),
                 running_state: (isRunningFlag(data[7]))?1:0,
+                compressionState: data[13],
             });
             if (data[12] == 0) {
-                this.setState({ heater: false });
+                this.setState({ heater: false,
+                    drainage: false,
+                 });
             } else {
-                this.setState({ heater: true });
+                if (data[12] >> 4) {
+                    this.setState({ drainage: true });
+                }else{
+                    this.setState({ drainage: false });
+                }
+                if (data[12] % 16) {
+                    this.setState({ heater: true });
+                }else{
+                    this.setState({ heater: false });
+                }
             }
         });
         eventEmitter.on('BLEConnection', (data: any) => {
@@ -45,7 +57,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
     }
 
     setHeaterDrainage = async (heater: boolean=false, drainage:boolean=false) => {
-        let success = false;
+        // let success = false;
         let onH
         if (heater) {
             onH = 0x01;
@@ -58,16 +70,25 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
         } else {
             onD = 0x00;
         };
-        while (!success) {
-            try {
-                await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x02, onD, onH, 0x00, 0x00, 0x00]);
-                
-                success = true;
-            } catch (error) {
-                console.log(error)
-            }
+        // while (!success) {
+        try {
+            await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x02, onD, onH, 0x00, 0x00, 0x00]);
+            // success = true;
+        } catch (error) {
+            console.log(error)
         }
+        // }
         console.log('设置按钮', [0xa1, 0x02, onD, onH, 0x00, 0x00, 0x00]);
+    }
+
+    setPressure = async (pressure: number) => {
+        try {
+            await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x04, pressure, 0x00, 0x00, 0x00, 0x00]);
+            // success = true;
+        } catch (error) {
+            console.log(error)
+        }
+        console.log('设置按钮', [0xa1, 0x04, pressure, 0x00, 0x00, 0x00, 0x00]);
     }
 
     render() {
@@ -119,14 +140,14 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                         
                         <View style={[styles.temperature]}>
 
-                            <Image source={require('../assets/cold.png')} style={{aspectRatio: 1, width: "20%", alignSelf: 'center'}} fadeDuration={100}/>
-                            <Text style={[styles.temperatureFont]}>{this.state.coldTemperature/10}</Text>   
+                            <Image source={require('../assets/hot.png')} style={{aspectRatio: 1, width: "20%", alignSelf: 'center'}} fadeDuration={100}/>
+                            <Text style={[styles.temperatureFont]}>{this.state.hotTemperature/10}</Text>
                             <Text style={[styles.OC]}>{'\u2103'}</Text>  
                         </View>
                         <View style={[styles.temperature]}>
 
-                            <Image source={require('../assets/hot.png')} style={{aspectRatio: 1, width: "20%", alignSelf: 'center'}} fadeDuration={100}/>
-                            <Text style={[styles.temperatureFont]}>{this.state.hotTemperature/10}</Text>
+                            <Image source={require('../assets/cold.png')} style={{aspectRatio: 1, width: "20%", alignSelf: 'center'}} fadeDuration={100}/>
+                            <Text style={[styles.temperatureFont]}>{this.state.coldTemperature/10}</Text>   
                             <Text style={[styles.OC]}>{'\u2103'}</Text>  
                         </View>
                         <View style={[styles.temperature]}>
@@ -139,6 +160,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                                     onValueChange={(itemValue, itemIndex) =>
                                         {
                                             this.setState({compressionState: itemValue});
+                                            this.setPressure(itemValue);
                                         }
                                     }>
                                     <Picker.Item style={{fontSize:22}} label={i18n.t('low')} value={0} />
@@ -161,7 +183,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         // justifyContent: 'center',
         marginTop: 10,
-        marginBottom: 20,
+        marginBottom: 10,
+        padding: 10,
     },
     h5: {
         fontSize: 24,

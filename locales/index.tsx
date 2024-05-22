@@ -51,6 +51,7 @@ export const resources = {
       HotFirst: 'Hot First',
       StartFailed: 'Failed to start, please try again.',
       PleaseStop: 'Please stop current mode first',
+      Loading: 'Loading',
 
     },
   },
@@ -101,6 +102,7 @@ export const resources = {
       HotFirst: '热先',
       StartFailed: '启动失败，请重试。',
       PleaseStop: '请先停止当前模式',
+      Loading: '加载中',
 
     },
   },

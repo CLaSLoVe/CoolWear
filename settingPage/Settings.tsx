@@ -187,8 +187,19 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
         break;
         case '3':
         content = (<View>
-            {hotLine}
-            {coldLine}
+            {
+                this.state.hotFirst?
+                <View>
+                    {hotLine}
+                    {coldLine}
+                </View>:
+                <View>
+                    {coldLine}
+                    {hotLine}
+                </View>
+            }
+            
+            
             <View style={[styles.settingLine]}>
                     <Text style={[styles.selectorText]}>{i18n.t("Conduct")}</Text>
                         <View style={[styles.selectorBG]}>
