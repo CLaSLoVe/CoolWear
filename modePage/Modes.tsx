@@ -19,22 +19,28 @@ interface ModesProps {
 
 
 
-function convertActionListToDescription(actionList: string | any[]) {
+function convertActionListToDescription(actionList: string | any[], loop: boolean = false) {
     let description = '';
-  
-    for (let i = 0; i < actionList.length; i++) {
+    let n = actionList.length;
+    if (loop){
+        n = Math.min(2, actionList.length);
+    }
+    for (let i = 0; i < n; i++) {
       const [time, isHot] = actionList[i];
   
       if (isHot) {
-        description += `${time}`+i18n.t('min')+i18n.t('Hot')+ ' ';
+        description += `${time} `+i18n.t('min')+i18n.t(' HOT')+ ' ';
       } else {
-        description += `${time}`+i18n.t('min')+i18n.t('Cold')+ ' ';
+        description += `${time} `+i18n.t('min')+i18n.t(' COLD')+ ' ';
       }
-      if (i % 2 == 1 && i != actionList.length - 1) {
+      if (i % 2 == 1 && i != n - 1) {
         description += '\n';
       }
     }
-    
+    if (loop){
+        description += '\n';
+        description += Math.max(actionList.length >> 1, 1)+' Cycles'
+    }
     
     return description;
   }
@@ -130,11 +136,14 @@ export default class Modes extends Component<ModesProps, {}> {
                     <View style={[styles.leftPanel]}>
                         <Text style={styles.contentText}>{i18n.t('TotalTime')+': '+this.props.totalRunTime+' '+i18n.t('min')}</Text>
                         <Text style={styles.contentText}>{i18n.t('TempRange')+': '+'~'+this.props.temperature+'\u2103'}</Text>
+                        {this.props.locked?
                         <Text style={styles.contentText}>{convertActionListToDescription(this.props.actionList)}</Text>
+                        :<Text style={styles.contentText}>{convertActionListToDescription(this.props.actionList, true)}</Text>}
+                        
                     </View>
                     <View style={[styles.rightPanel]}>
                         <TouchableOpacity style={styles.startButton} onPress={() => {this.selectMode()}}>
-                            <FastImage source={require('../assets/mode_start.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/>
+                            <FastImage source={require('../assets/mode_start.png')} style={{width: '80%', height: '80%', alignSelf: 'center'}}/>
                         </TouchableOpacity>
                     </View>
                     {/* <Text>0</Text> */}
