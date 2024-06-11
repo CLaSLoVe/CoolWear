@@ -1,6 +1,6 @@
 import { Text, StyleSheet, View, TouchableHighlight, ActivityIndicator, Dimensions, Easing, Image  } from 'react-native'
 import React, { Component } from 'react'
-import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag } from '../GlobalVars';
+import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag, } from '../GlobalVars';
 import { eventEmitter } from '../GlobalVars';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import BleManager from 'react-native-ble-manager';
@@ -11,13 +11,13 @@ import { Toast } from 'react-native-toast-notifications';
 const Full321 = 5000;
 const oneSecond = 1000;
 
-export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean, ellipsis:string}> {
+export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean, ellipsis:string, therapy_counted:boolean}> {
   // timer: NodeJS.Timeout | undefined;
   screenWidth: number = 640;
   constructor(props: {}) {
     super(props);
     this.state = {
-      full_time: 0,
+      full_time: 15*60,
       disabled: true, // 是否禁用按钮,true
       start_running: false,
       stop_running: false, 
@@ -30,6 +30,8 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       heater: 0x00,
       waiting: false,
       ellipsis: '.',
+      therapy_counted: false,
+
     };
   }
 
@@ -116,8 +118,6 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
             }
           }
           
-          
-          
           this.manualMode(true, numCycles, hotFirst, coldTime, hotTime, temperature, isSingle)
         }
       );
@@ -135,6 +135,14 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
             countingDown: false,
             three_two_one: Full321,
           });
+          if (data[9]*60 - (data[10]*256+data[11]) <=5 && !this.state.therapy_counted){
+            console.log(data[8]>>4?'hot':'cold', data[9]*60, ' completed ->', data[1]*256 + data[2]);
+            this.setState({therapy_counted: true});
+          };
+          if (data[9]*60 - (data[10]*256+data[11]) > 50){
+            this.setState({therapy_counted: false});
+          };
+          
           eventEmitter.emit('countingDown', false);
         }else{
           this.setState({running_state: 2});
@@ -142,7 +150,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       } else {
         this.setState({running_state: 0,
           timeRemaining: data[1]*256 + data[2] + 1,
-          cyclePercentage: 0
+          cyclePercentage: 0,
         });
       };
       // console.log(this.state.running_state);
@@ -200,7 +208,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     eventEmitter.emit('countingDown', true);
     let cdTimer = setInterval(() => {
       this.setState({three_two_one: this.state.three_two_one-oneSecond});
-      this.setState({ellipsis: i18n.t('Loading')+'\n'+'.'.repeat(Math.floor((Full321 - this.state.three_two_one)/1000)) },()=>{console.log(this.state.ellipsis)});
+      this.setState({ellipsis: i18n.t('Loading')+'\n'+'.'.repeat(Math.floor((Full321 - this.state.three_two_one)/1000)) });
       // console.log(this.state.three_two_one);
       if (this.state.running_state == 1){
         clearInterval(cdTimer);
@@ -265,7 +273,8 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       let success = false;
       while (!success){
         try {
-          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x02, this.state.heater, 0x00, 0x00, 0x00]);
+          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x02, this.state.heater, 0x00, 0x00, 0x00])
+          // postToGoogleSheet('暂停');
           console.log('目前运行，然后暂停');
           success = true;
         } catch (error) {
@@ -282,6 +291,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       while (!success){
         try {
           await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x03, this.state.heater, 0x00, 0x00, 0x00]);
+          // postToGoogleSheet('继续');
           console.log('目前暂停，然后继续');
           success = true;
         } catch (error) {
@@ -297,6 +307,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     while (success>=0){
       try {
         await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x01, this.state.heater, 0x00, 0x00, 0x00]);
+        // postToGoogleSheet('开始');
         console.log('目前停止，然后开始');
         this.setState({start_running: false});
         break;
@@ -326,6 +337,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     while (success>=0){
       try {
         await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x00, this.state.heater, 0x00, 0x00, 0x00]);
+        // postToGoogleSheet('停止');
         console.log('停止');
         this.setState({stop_running: false});
         break;

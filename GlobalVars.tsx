@@ -6,6 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import BleManager from 'react-native-ble-manager';
 import { Toast } from 'react-native-toast-notifications';
 import i18n from './locales';
+import DeviceInfo from 'react-native-device-info';
+import { getUniqueId, getManufacturer } from 'react-native-device-info';
 
 // export const CWid = "F4:12:FA:F8:F1:FE";
 // export const serviceid = "6e400020-b5a3-f393-e0a9-e50e24dcca9d";
@@ -98,7 +100,7 @@ export function  startToaster () {
 }
 
 export function isRunningFlag (flag:any) {
-  return flag == 1 || flag == 2 || flag == 3 || flag == 5;
+  return flag == 1 || flag == 2 || flag == 3 || flag == 4 || flag == 5;
 }
 
 
@@ -109,4 +111,46 @@ export function stopCurrentToaster () {
     duration: 2000,
     animationType: "zoom-in",
   });
+}
+
+
+export async function  postToGoogleSheet (runtime_data:string) {
+
+  let Id = '';
+  let DeviceId = '';
+  await DeviceInfo.getUniqueId().then((data) => {
+     Id = data;
+  });
+
+  await DeviceInfo.getDevice().then((data) => {
+    DeviceId = data;
+  });
+
+  const formUrl = 'https://docs.google.com/spreadsheets/d/1AhZTXFOFhc5OQepjSca3o4CSxaaB1V2y7IYGpTZUndU/edit?usp=sharing';
+  const formData = new URLSearchParams();
+
+  formData.append('device_name', DeviceId);
+  formData.append('device_id', Id);
+  formData.append('runtime_data', runtime_data);
+
+
+  try {
+    const response = await fetch(formUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formData.toString(),
+    });
+
+    if (response.ok) {
+      console.log('Device ID sent successfully');
+    } else {
+      console.log('Response status:', response.status);
+      // console.log('Response body:', await response.text());
+    }
+  } catch (error) {
+    console.error('Error sending Device ID:', error);
+  }
+
 }
