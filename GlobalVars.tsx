@@ -8,6 +8,7 @@ import { Toast } from 'react-native-toast-notifications';
 import i18n from './locales';
 import DeviceInfo from 'react-native-device-info';
 import { getUniqueId, getManufacturer } from 'react-native-device-info';
+import axios from 'axios';
 
 // export const CWid = "F4:12:FA:F8:F1:FE";
 // export const serviceid = "6e400020-b5a3-f393-e0a9-e50e24dcca9d";
@@ -15,9 +16,10 @@ import { getUniqueId, getManufacturer } from 'react-native-device-info';
 // export const characteristicid2 = "6e400021-b5a3-f393-e0a9-e50e24dcca9d";
 
 export const globalVals = {
-  CWid: "F4:12:FA:F8:F1:FE",
+  // CWid: "F4:12:FA:F8:F1:FE",
   // CWid: "74:4D:BD:79:6E:C6",
   // CWid: "34:85:18:8D:36:3A",
+  CWid: "",
   serviceid: "6e400020-b5a3-f393-e0a9-e50e24dcca9d",
   characteristicid: "6e400023-b5a3-f393-e0a9-e50e24dcca9d",
   characteristicid2: "6e400021-b5a3-f393-e0a9-e50e24dcca9d",
@@ -114,43 +116,27 @@ export function stopCurrentToaster () {
 }
 
 
-export async function  postToGoogleSheet (runtime_data:string) {
+export async function postToSQLAPI(action: string, time_remain: string) {
 
-  let Id = '';
-  let DeviceId = '';
-  await DeviceInfo.getUniqueId().then((data) => {
-     Id = data;
-  });
-
-  await DeviceInfo.getDevice().then((data) => {
-    DeviceId = data;
-  });
-
-  const formUrl = 'https://docs.google.com/spreadsheets/d/1AhZTXFOFhc5OQepjSca3o4CSxaaB1V2y7IYGpTZUndU/edit?usp=sharing';
-  const formData = new URLSearchParams();
-
-  formData.append('device_name', DeviceId);
-  formData.append('device_id', Id);
-  formData.append('runtime_data', runtime_data);
-
+  const [deviceId, deviceName] = await Promise.all([
+    DeviceInfo.getUniqueId(),
+    DeviceInfo.getDevice(),
+  ]);
 
   try {
-    const response = await fetch(formUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: formData.toString(),
+    const response = await axios.post('http://159.75.239.186:5000/users', {
+      userid: deviceId,
+      deviceid: deviceName,
+      action: action,
+      time_remain: time_remain,
     });
 
-    if (response.ok) {
-      console.log('Device ID sent successfully');
+    if (response.status === 201) {
+      console.log('User added successfully');
     } else {
-      console.log('Response status:', response.status);
-      // console.log('Response body:', await response.text());
+      console.log('Failed to add user');
     }
   } catch (error) {
-    console.error('Error sending Device ID:', error);
+    console.error('Error:', error);
   }
-
 }

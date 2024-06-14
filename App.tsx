@@ -105,6 +105,11 @@ export default function App() {
         id: 'firstRun',
         data: false,
       });
+      storage.save({
+        key: 'settings',
+        id: 'uuid',
+        data: 'none',
+      });
       }
     }
     ).catch((err) => {

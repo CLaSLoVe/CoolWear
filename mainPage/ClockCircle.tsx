@@ -1,6 +1,6 @@
 import { Text, StyleSheet, View, TouchableHighlight, ActivityIndicator, Dimensions, Easing, Image  } from 'react-native'
 import React, { Component } from 'react'
-import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag, } from '../GlobalVars';
+import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag, postToSQLAPI} from '../GlobalVars';
 import { eventEmitter } from '../GlobalVars';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import BleManager from 'react-native-ble-manager';
@@ -136,7 +136,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
             three_two_one: Full321,
           });
           if (data[9]*60 - (data[10]*256+data[11]) <=5 && !this.state.therapy_counted){
-            console.log(data[8]>>4?'hot':'cold', data[9]*60, ' completed ->', data[1]*256 + data[2]);
+            postToSQLAPI((data[8]>>4?'hot':'cold')+(data[9]*60).toString()+'_completed', this.state.timeRemaining.toString());
             this.setState({therapy_counted: true});
           };
           if (data[9]*60 - (data[10]*256+data[11]) > 50){
@@ -192,7 +192,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
 
   start_timer = () => {
     if (this.state.running_state == 2){
-      // this.setState({running_state: 1});
+      // this.setState({running_state: 1});..*-
       return;
     } else if (this.state.running_state == 1){
       // this.setState({running_state: 2});
@@ -274,8 +274,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       while (!success){
         try {
           await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x02, this.state.heater, 0x00, 0x00, 0x00])
-          // postToGoogleSheet('暂停');
-          console.log('目前运行，然后暂停');
+          postToSQLAPI('paused', this.state.timeRemaining.toString());
           success = true;
         } catch (error) {
           console.log(error)
@@ -291,8 +290,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       while (!success){
         try {
           await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x03, this.state.heater, 0x00, 0x00, 0x00]);
-          // postToGoogleSheet('继续');
-          console.log('目前暂停，然后继续');
+          postToSQLAPI('continue', this.state.timeRemaining.toString());
           success = true;
         } catch (error) {
           console.log(error)
@@ -307,8 +305,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     while (success>=0){
       try {
         await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x01, this.state.heater, 0x00, 0x00, 0x00]);
-        // postToGoogleSheet('开始');
-        console.log('目前停止，然后开始');
+        postToSQLAPI('start', 'unknown');
         this.setState({start_running: false});
         break;
       } catch (error) {
@@ -337,8 +334,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     while (success>=0){
       try {
         await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x00, this.state.heater, 0x00, 0x00, 0x00]);
-        // postToGoogleSheet('停止');
-        console.log('停止');
+        postToSQLAPI('stop', this.state.timeRemaining.toString());
         this.setState({stop_running: false});
         break;
       } catch (error) {

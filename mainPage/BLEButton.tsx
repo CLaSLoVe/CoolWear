@@ -1,9 +1,11 @@
 import { Text, StyleSheet, View, TouchableWithoutFeedback, ActivityIndicator, Alert, PermissionsAndroid, Platform, } from 'react-native'
 import React, { Component } from 'react'
-import { globalVals, eventEmitter, readDataFromDevice } from '../GlobalVars';
+import { globalVals, eventEmitter, readDataFromDevice, storage } from '../GlobalVars';
 import i18n from '../locales/index';
 
 import {Toast} from "react-native-toast-notifications";
+
+
 
 
 import BleManager, {
@@ -14,6 +16,7 @@ import BleManager, {
     BleScanMode,
     Peripheral,
 } from 'react-native-ble-manager';
+import Scanner from './Scanner';
 
 
 export default class BLEButton extends Component<{}, {bleState: number, disabled: boolean, data: number[]}> {
@@ -32,6 +35,17 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
         BleManager.start({showAlert: false})
         this.handleAndroidPermissions();
         console.log('BleManager Started');
+        storage.load({
+          key: 'settings',
+          id: 'uuid',
+        }).then((ret: any) => {
+          if (ret == 'none'){
+            this.setState({disabled: true})
+          } else {
+            globalVals.CWid = ret;
+            console.log('UUID loaded: ', ret);
+          }
+        })
       }
     
     handleDisconnect = () => {
@@ -160,7 +174,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
   render() {
     const {bleState} = this.state;
     return (
-      <View style={[styles.container]}>
+      <View style={{ width: '70%',}}>
         <TouchableWithoutFeedback onPress={() => {this.handlePress()}} disabled={this.state.disabled}>
             <View style={[styles.bleButton]}>
                 {   bleState==0 ? (
