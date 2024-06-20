@@ -15,7 +15,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
             drainage: false,
             coldTemperature: 0, // 冷水温度
             hotTemperature: 0, // 热水温度
-            compressionState: 0, // 压缩机状态
+            compressionState: 1, // 压缩机状态
             running_state: 0, // 运行状态
             isBLEConnected: false, // 是否连接蓝牙
             countingDown: false,
@@ -29,7 +29,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                 coldTemperature: Math.floor((data[3] * 256 + data[4]) / 10),
                 hotTemperature: Math.floor((data[5] * 256 + data[6]) / 10),
                 running_state: (isRunningFlag(data[7]))?1:0,
-                compressionState: data[13],
+                compressionState: data[13]+1,
             });
             if (data[12] == 0) {
                 this.setState({ heater: false,
@@ -82,13 +82,14 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
     }
 
     setPressure = async (pressure: number) => {
+        console.log('设置压力', pressure)
         try {
             await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x04, pressure, 0x00, 0x00, 0x00, 0x00]);
             // success = true;
         } catch (error) {
             console.log(error)
         }
-        console.log('设置按钮', [0xa1, 0x04, pressure, 0x00, 0x00, 0x00, 0x00]);
+        console.log('设置ok', [0xa1, 0x04, pressure, 0x00, 0x00, 0x00, 0x00]);
     }
 
     render() {
@@ -155,17 +156,18 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                             <View style={{width: 130}}>
                                 <Picker
                                     enabled={!(this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown)}
-                                    mode='dropdown'
+                                    // mode='dropdown'
                                     selectedValue={this.state.compressionState}
                                     onValueChange={(itemValue, itemIndex) =>
                                         {
                                             this.setState({compressionState: itemValue});
-                                            this.setPressure(itemValue);
+                                            this.setPressure(itemValue-1);
+                                            console.log('itemValue', itemValue)
                                         }
                                     }>
-                                    <Picker.Item style={{fontSize:22}} label={i18n.t('low')} value={0} />
-                                    <Picker.Item style={{fontSize:22}} label={i18n.t('mid')} value={1} />
-                                    <Picker.Item style={{fontSize:22}} label={i18n.t('high')} value={2} />
+                                    <Picker.Item style={{fontSize:22}} label={i18n.t('low')} value={1} />
+                                    <Picker.Item style={{fontSize:22}} label={i18n.t('mid')} value={2} />
+                                    <Picker.Item style={{fontSize:22}} label={i18n.t('high')} value={3} />
                                     
                                 </Picker>
                             </View>

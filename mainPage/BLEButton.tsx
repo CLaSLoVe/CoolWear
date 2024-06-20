@@ -34,6 +34,9 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
     componentDidMount() {
         BleManager.start({showAlert: false})
         this.handleAndroidPermissions();
+        // eventEmitter.on('QRScanned', (data) => {
+        //   this.handlePress();
+        // });
         console.log('BleManager Started');
         storage.load({
           key: 'settings',
@@ -45,7 +48,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
             globalVals.CWid = ret;
             console.log('UUID loaded: ', ret);
           }
-        })
+        });
       }
     
     handleDisconnect = () => {
@@ -61,8 +64,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
                     text: 'OK',
                     onPress: async () => {
                         await BleManager.disconnect(globalVals.CWid);
-                        this.setState({ bleState: 0 })
-                        this.setState({ disabled: true });
+                        this.setState({ bleState: 0, disabled: true });
                         console.log('BLE Disconnected');
                         eventEmitter.emit('BLEConnection', false);
                         

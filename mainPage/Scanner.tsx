@@ -27,7 +27,9 @@ export default class ScanScreen extends Component<{}, {showScanner:boolean}> {
             data: e.data,
           }).then(() => {
             console.log('UUID saved: ', e.data);
-            this.setState({showScanner: false});
+            this.setState({showScanner: false}, () => {
+                eventEmitter.emit('QRScanned', e.data);
+            });
           });
           
 
