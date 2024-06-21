@@ -7,7 +7,11 @@ import {Picker} from '@react-native-picker/picker';
 import i18n from '../locales';
 import EventEmitter from 'eventemitter3';
 
-export default class Heater extends Component<{}, { heater: boolean, drainage:boolean, coldTemperature: number, hotTemperature: number, compressionState:number, running_state:number, isBLEConnected:boolean, countingDown:boolean, disabledHeater:boolean}> {
+
+const NOTIFY_MIN = 3;
+
+
+export default class Heater extends Component<{}, { heater: boolean, drainage:boolean, coldTemperature: number, hotTemperature: number, compressionState:number, running_state:number, isBLEConnected:boolean, countingDown:boolean, disabledHeater:boolean, notifyCountList: number[] }> {
     constructor(props: {}) {
         super(props);
         this.state = {
@@ -20,6 +24,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
             isBLEConnected: false, // 是否连接蓝牙
             countingDown: false,
             disabledHeater: false,
+            notifyCountList: [NOTIFY_MIN, NOTIFY_MIN, NOTIFY_MIN] // 通知次数 pressure, heater, drainage
         };
     }
 
@@ -29,23 +34,44 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                 coldTemperature: Math.floor((data[3] * 256 + data[4]) / 10),
                 hotTemperature: Math.floor((data[5] * 256 + data[6]) / 10),
                 running_state: (isRunningFlag(data[7]))?1:0,
-                compressionState: data[13]+1,
+                notifyCountList: this.state.notifyCountList.map((item, index) => {
+                    if (item > 100) {
+                        return NOTIFY_MIN;
+                    }
+                    return item+1;
+                })
             });
+            console.log(this.state.notifyCountList)
+            if (this.state.notifyCountList[0] >= NOTIFY_MIN) {
+                this.setState({compressionState: data[13]+1});
+            }
+
             if (data[12] == 0) {
-                this.setState({ heater: false,
-                    drainage: false,
-                 });
-            } else {
-                if (data[12] >> 4) {
-                    this.setState({ drainage: true });
-                }else{
+                if (this.state.notifyCountList[2] >= NOTIFY_MIN){
                     this.setState({ drainage: false });
                 }
-                if (data[12] % 16) {
-                    this.setState({ heater: true });
-                }else{
+                if (this.state.notifyCountList[1] >= NOTIFY_MIN){
                     this.setState({ heater: false });
                 }
+                // this.setState({ heater: false,
+                //     drainage: false,
+                //  });
+            } else {
+                if (this.state.notifyCountList[2] >= NOTIFY_MIN){
+                    if (data[12] >> 4) {
+                        this.setState({ drainage: true });
+                    }else{
+                        this.setState({ drainage: false });
+                    }
+                }
+                if ((!this.state.disabledHeater) && (this.state.notifyCountList[1] >= NOTIFY_MIN)){
+                    if (data[12] % 16) {
+                        this.setState({ heater: true });
+                    }else{
+                        this.setState({ heater: false });
+                    }
+                }
+                
             }
         });
         eventEmitter.on('BLEConnection', (data: any) => {
@@ -110,7 +136,15 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                                     eventEmitter.emit('Heater', value);
                                 });
                                 let timer = setTimeout(() => {
-                                    this.setState({disabledHeater: false});
+                                    this.setState({
+                                        disabledHeater: false,
+                                        notifyCountList: this.state.notifyCountList.map((item, index) => {
+                                            if (index == 1){
+                                                return 0;
+                                            }
+                                            return item;
+                                        })
+                                    });
                                     clearTimeout(timer);
                                 }, globalVals.heaterWaitingTime);
                                 
@@ -125,6 +159,12 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                             onValueChange={(value) => {
                                 this.setState({
                                     drainage: value,
+                                    notifyCountList: this.state.notifyCountList.map((item, index) => {
+                                        if (index == 2){
+                                            return 0;
+                                        }
+                                        return item;
+                                    })
                                 }, ()=>{
                                     this.setHeaterDrainage(this.state.heater, this.state.drainage);
                                     eventEmitter.emit('Drainage', value);
@@ -156,13 +196,20 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                             <View style={{width: 130}}>
                                 <Picker
                                     enabled={!(this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown)}
-                                    // mode='dropdown'
+                                    mode='dropdown'
                                     selectedValue={this.state.compressionState}
                                     onValueChange={(itemValue, itemIndex) =>
                                         {
-                                            this.setState({compressionState: itemValue});
+                                            this.setState({compressionState: itemValue,
+                                                notifyCountList: this.state.notifyCountList.map((item, index) => {
+                                                    if (index == 0){
+                                                        return 0;
+                                                    }
+                                                    return item;
+                                                })
+                                            });
                                             this.setPressure(itemValue-1);
-                                            console.log('itemValue', itemValue)
+                                            console.log('itemValue', itemValue);
                                         }
                                     }>
                                     <Picker.Item style={{fontSize:22}} label={i18n.t('low')} value={1} />
