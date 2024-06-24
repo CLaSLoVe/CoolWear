@@ -1,6 +1,6 @@
 import { Text, StyleSheet, View, TouchableHighlight, ActivityIndicator, Dimensions, Easing, Image  } from 'react-native'
 import React, { Component } from 'react'
-import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag, postToSQLAPI} from '../GlobalVars';
+import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag, postToSQLAPI, postToSQLAPIdevice} from '../GlobalVars';
 import { eventEmitter } from '../GlobalVars';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import BleManager from 'react-native-ble-manager';
@@ -128,6 +128,9 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
         timeRemaining: data[1]*256 + data[2] + 1,
         curHotCold: data[8]>>4,
       });
+
+      postToSQLAPIdevice(data[14]*256+data[15], data[16]*256+data[17]);
+
       if (isRunningFlag(data[7])){
         if (data[8]%16 == 0){
           this.setState({running_state: 1,

@@ -129,6 +129,27 @@ export async function postToSQLAPI(action: string, time_remain: string) {
       deviceid: deviceName,
       action: action,
       time_remain: time_remain,
+      cwid: globalVals.CWid,
+    });
+
+    if (response.status === 201) {
+      console.log('User added successfully');
+    } else {
+      console.log('Failed to add user');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+
+export async function postToSQLAPIdevice(start_count: number, end_count: number) {
+
+  try {
+    const response = await axios.post('http://159.75.239.186:5000/devices', {
+      cwid: globalVals.CWid,
+      start_count: start_count,
+      end_count: end_count,
     });
 
     if (response.status === 201) {

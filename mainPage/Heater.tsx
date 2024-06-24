@@ -41,7 +41,6 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                     return item+1;
                 })
             });
-            console.log(this.state.notifyCountList)
             if (this.state.notifyCountList[0] >= NOTIFY_MIN) {
                 this.setState({compressionState: data[13]+1});
             }
