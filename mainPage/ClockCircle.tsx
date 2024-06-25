@@ -138,13 +138,22 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
             countingDown: false,
             three_two_one: Full321,
           });
-          if (data[9]*60 - (data[10]*256+data[11]) <=5 && !this.state.therapy_counted){
-            postToSQLAPI((data[8]>>4?'hot':'cold')+(data[9]*60).toString()+'_completed', this.state.timeRemaining.toString());
-            this.setState({therapy_counted: true});
-          };
-          if (data[9]*60 - (data[10]*256+data[11]) > 50){
-            this.setState({therapy_counted: false});
-          };
+          // if (data[9]*60 - (data[10]*256+data[11]) <=5 && !this.state.therapy_counted){
+          //   postToSQLAPI((data[8]>>4?'hot':'cold')+(data[9]*60).toString()+'_completed', this.state.timeRemaining.toString());
+          //   this.setState({therapy_counted: true});
+          // };
+          // if (data[9]*60 - (data[10]*256+data[11]) > 5){
+          //   this.setState({therapy_counted: false});
+          // };
+
+          if (this.state.timeRemaining <= 5 && !this.state.therapy_counted){
+              postToSQLAPI('complete', this.state.timeRemaining.toString());
+              this.setState({therapy_counted: true});
+            };
+            if (data[9]*60 - (data[10]*256+data[11]) > 5){
+              this.setState({therapy_counted: false});
+            };
+  
           
           eventEmitter.emit('countingDown', false);
         }else{
@@ -152,7 +161,6 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
         }
       } else {
         this.setState({running_state: 0,
-          timeRemaining: data[1]*256 + data[2] + 1,
           cyclePercentage: 0,
         });
       };
