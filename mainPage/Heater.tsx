@@ -35,8 +35,8 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                 hotTemperature: Math.floor((data[5] * 256 + data[6]) / 10),
                 running_state: (isRunningFlag(data[7]))?1:0,
                 notifyCountList: this.state.notifyCountList.map((item, index) => {
-                    if (item > 100) {
-                        return NOTIFY_MIN;
+                    if (item > 20) {
+                        return NOTIFY_MIN+1;
                     }
                     return item+1;
                 })
@@ -49,9 +49,14 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                 if (this.state.notifyCountList[2] >= NOTIFY_MIN){
                     this.setState({ drainage: false });
                 }
-                if (this.state.notifyCountList[1] >= NOTIFY_MIN){
+                // if (this.state.notifyCountList[1] >= NOTIFY_MIN){
+                if ((!this.state.disabledHeater)){
                     this.setState({ heater: false });
                 }
+                // else{
+                //     this.setState({ heater: false });
+                // }
+                // }
                 // this.setState({ heater: false,
                 //     drainage: false,
                 //  });
@@ -63,14 +68,13 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                         this.setState({ drainage: false });
                     }
                 }
-                if ((!this.state.disabledHeater) && (this.state.notifyCountList[1] >= NOTIFY_MIN)){
+                if ((!this.state.disabledHeater)){ //  && (this.state.notifyCountList[1] >= NOTIFY_MIN)
                     if (data[12] % 16) {
                         this.setState({ heater: true });
                     }else{
                         this.setState({ heater: false });
                     }
                 }
-                
             }
         });
         eventEmitter.on('BLEConnection', (data: any) => {
@@ -137,12 +141,13 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                                 let timer = setTimeout(() => {
                                     this.setState({
                                         disabledHeater: false,
-                                        notifyCountList: this.state.notifyCountList.map((item, index) => {
-                                            if (index == 1){
-                                                return 0;
-                                            }
-                                            return item;
-                                        })
+                                        // here may be a bug
+                                        // notifyCountList: this.state.notifyCountList.map((item, index) => {
+                                        //     if (index == 1){
+                                        //         return 0;
+                                        //     }
+                                        //     return item;
+                                        // })
                                     });
                                     clearTimeout(timer);
                                 }, globalVals.heaterWaitingTime);

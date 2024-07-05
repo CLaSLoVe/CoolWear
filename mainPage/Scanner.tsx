@@ -8,6 +8,8 @@ import { RNCamera } from 'react-native-camera';
 import ClockCircle from './ClockCircle'
 import Heater from './Heater'
 import BLEButton from './BLEButton';
+import {Toast} from "react-native-toast-notifications";
+import i18n from '../locales/index';
 
 export default class ScanScreen extends Component<{}, {showScanner:boolean}> {
     constructor(props: {}) {
@@ -21,16 +23,34 @@ export default class ScanScreen extends Component<{}, {showScanner:boolean}> {
 
 
     onSuccess = (e: { data: any; }) => {
-        storage.save({
-            key: 'settings',
-            id: 'uuid',
-            data: e.data,
-          }).then(() => {
-            console.log('UUID saved: ', e.data);
-            this.setState({showScanner: false}, () => {
-                eventEmitter.emit('QRScanned', e.data);
-            });
-          });
+        const prefix = "coolwear-";
+        if (e.data.startsWith(prefix)) {
+            Toast.show(i18n.t('IsCW'), {
+                type: "success",
+                placement: "bottom",
+                duration: 2000,
+                animationType: "zoom-in",
+              });
+            storage.save({
+                key: 'settings',
+                id: 'uuid',
+                data: e.data.slice(prefix.length),
+              }).then(() => {
+                console.log('UUID saved: ', e.data);
+                this.setState({showScanner: false}, () => {
+                    eventEmitter.emit('QRScanned', e.data);
+                });
+              });
+        }else{
+            Toast.show(i18n.t('NotCW'), {
+                type: "warning",
+                placement: "bottom",
+                duration: 2000,
+                animationType: "zoom-in",
+              });
+              this.setState({showScanner: false});
+        }
+        
           
 
     };

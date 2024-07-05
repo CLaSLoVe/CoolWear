@@ -52,7 +52,8 @@ export const resources = {
       StartFailed: 'Failed to start, please try again.',
       PleaseStop: 'Please stop current mode first',
       Loading: 'Loading',
-
+      NotCW: 'Not a CoolWear QR code',
+      IsCW: 'CoolWear QR code detected, please press the button to connect',
     },
   },
   zh: {
@@ -103,7 +104,8 @@ export const resources = {
       StartFailed: '启动失败，请重试。',
       PleaseStop: '请先停止当前模式',
       Loading: '加载中',
-
+      NotCW: '不是CoolWear二维码',
+      IsCW: '检测到CoolWear二维码，请按按钮连接',
     },
   },
 };
