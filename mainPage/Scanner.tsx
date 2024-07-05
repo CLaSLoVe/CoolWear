@@ -78,7 +78,7 @@ export default class ScanScreen extends Component<{}, {showScanner:boolean}> {
                             <TouchableWithoutFeedback 
                             onPress={() => this.setState({showScanner: true})}>
                                 <View style={[styles.buttonTouchable]}>
-                                <Text style={[styles.whiteText]}>Scan QR</Text>
+                                <Text style={[styles.whiteText]}>{i18n.t('ScanQR')}</Text>
                                 </View>
                             </TouchableWithoutFeedback>
                         </View>

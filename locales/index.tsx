@@ -54,6 +54,7 @@ export const resources = {
       Loading: 'Loading',
       NotCW: 'Not a CoolWear QR code',
       IsCW: 'CoolWear QR code detected, please press the button to connect',
+      ScanQR: 'Scan QR code',
     },
   },
   zh: {
@@ -106,6 +107,7 @@ export const resources = {
       Loading: '加载中',
       NotCW: '不是CoolWear二维码',
       IsCW: '检测到CoolWear二维码，请按按钮连接',
+      ScanQR: '扫描二维码',
     },
   },
 };
