@@ -1,6 +1,6 @@
 import { Text, StyleSheet, View, TouchableHighlight, ActivityIndicator, Dimensions, Easing, Image  } from 'react-native'
 import React, { Component } from 'react'
-import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag, postToSQLAPI, postToSQLAPIdevice} from '../GlobalVars';
+import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag, postToSQLAPI, postToSQLAPIdevice, WaitToaster, DontPressToaster} from '../GlobalVars';
 import { eventEmitter } from '../GlobalVars';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import BleManager from 'react-native-ble-manager';
@@ -11,7 +11,7 @@ import { Toast } from 'react-native-toast-notifications';
 const Full321 = 5000;
 const oneSecond = 1000;
 
-export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean, ellipsis:string, therapy_counted:boolean}> {
+export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean, ellipsis:string, therapy_counted:boolean, circle_title:string, disable_start:boolean}> {
   // timer: NodeJS.Timeout | undefined;
   screenWidth: number = 640;
   constructor(props: {}) {
@@ -31,7 +31,8 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       waiting: false,
       ellipsis: '.',
       therapy_counted: false,
-
+      circle_title: 'TimeRemaining',
+      disable_start: false,
     };
   }
 
@@ -88,9 +89,11 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
         return
       }
       if (data.automode){
-        this.manualMode(false, 0, false, 0, 0, 0, false);
+        this.manualMode(false, 0, false, 0, 0, 0, false, data.automode);
+        WaitToaster();
         return
       }
+      //
       this.setState(
         { 
           full_time: data.totalRunTime*60, 
@@ -118,7 +121,8 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
             }
           }
           
-          this.manualMode(true, numCycles, hotFirst, coldTime, hotTime, temperature, isSingle)
+          this.manualMode(true, numCycles, hotFirst, coldTime, hotTime, temperature, isSingle);
+          WaitToaster();
         }
       );
     });
@@ -130,6 +134,12 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       });
 
       postToSQLAPIdevice(data[14]*256+data[15], data[16]*256+data[17]);
+
+      if (data[7] == 9){
+        this.setState({circle_title: 'Drain'})
+      }else{
+        this.setState({circle_title: 'TimeRemaining'})
+      }
 
       if (isRunningFlag(data[7])){
         if (data[8]%16 == 0){
@@ -169,7 +179,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     // console.log(this.state.countingDown);
   }
 
-  manualMode = async(on:boolean, numCycles:number, hotFirst:boolean, coldDur:number, hotDur:number, temperature:number, isSingle:boolean) => {
+  manualMode = async(on:boolean, numCycles:number, hotFirst:boolean, coldDur:number, hotDur:number, temperature:number, isSingle:boolean, select_mode:number=1) => {
     try {
       await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x03, temperature, 0x00, 0x00, 0x00, 0x00]);
       console.log('设置温度为', temperature);
@@ -187,7 +197,12 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
         
         console.log('设置为手动模式');
         success = true;
-        this.startCW();
+        // if (on){
+        //   this.startCW();
+        // }else{
+          
+        // }
+        this.startCW(select_mode);
       } catch (error) {
         console.log(error)
       }
@@ -270,7 +285,16 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
 
 
 
-  startCW = async() =>{
+  startCW = async(select_mode:number=1) =>{
+    if (this.state.disable_start){
+      DontPressToaster();
+      return;
+    }
+    this.setState({ disable_start: true });
+   const lockTimeoutId = setTimeout(() => {
+      this.setState({ disable_start: false });
+    }, 2000);
+
     if (this.state.disabled){
       connectToaster();
       return;
@@ -284,7 +308,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       let success = false;
       while (!success){
         try {
-          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x02, this.state.heater, 0x00, 0x00, 0x00])
+          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x06, 0x02, this.state.heater, 0x00, 0x00, 0x00])
           postToSQLAPI('paused', this.state.timeRemaining.toString());
           success = true;
         } catch (error) {
@@ -300,7 +324,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       let success = false;
       while (!success){
         try {
-          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x03, this.state.heater, 0x00, 0x00, 0x00]);
+          await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x06, 0x03, this.state.heater, 0x00, 0x00, 0x00]);
           postToSQLAPI('continue', this.state.timeRemaining.toString());
           success = true;
         } catch (error) {
@@ -315,7 +339,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     let success = globalVals.tryTimes;
     while (success>=0){
       try {
-        await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x01, this.state.heater, 0x00, 0x00, 0x00]);
+        await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, select_mode, this.state.heater, 0x00, 0x00, 0x00]);
         postToSQLAPI('start', 'unknown');
         this.setState({start_running: false});
         break;
@@ -335,6 +359,10 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
   };
 
   stopCW = async() =>{
+    if (this.state.running_state == 0){
+      return;
+    }
+
     if (this.state.disabled){
       connectToaster();
       return;
@@ -389,7 +417,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
             </View>:
             <View style={[styles.TextContainer]}>
               <Text style={[styles.h5]}>
-              {i18n.t("TimeRemaining")}
+              {i18n.t(this.state.circle_title)}
               </Text>
               <Text style={[styles.TimerText]}>
                 {this.state.running_state==0? '--' : this.formatTime(this.state.timeRemaining)}

@@ -21,7 +21,7 @@ interface CustomProps {
 
 
 // 自定义页面细节
-export class CustomPage extends Component<SettingProps, {temperature:number, hotDur:number, coldDur:number,  modeHotCold:string, radioButtons:{ id: string; label: string }[], totalRunTime:number, numCycles:number, title:string, hotFirst: boolean}> {
+export class CustomPage extends Component<SettingProps, {temperature:number, hotDur:number, coldDur:number, pressure:number, modeHotCold:string, radioButtons:{ id: string; label: string }[], totalRunTime:number, numCycles:number, title:string, hotFirst: boolean}> {
     constructor(props: SettingProps) {
         super(props);
         this.state = {
@@ -29,6 +29,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
             temperature: 40,
             hotDur: 6,
             coldDur: 6,
+            pressure: 1,
             radioButtons: [
                 { id: '1', label: i18n.t('Hot') },
                 { id: '2', label: i18n.t('Cold') },
@@ -94,6 +95,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                 title:this.state.title? this.state.title: 'Custom Mode',
                 totalRunTime: this.state.totalRunTime,
                 temperature: this.state.temperature,
+                pressure: this.state.pressure,
                 actionList: this.calcActionList(),
                 timeId: currentDate.toString(),
                 locked: false,
@@ -146,7 +148,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
         </View> 
         <Text style={[styles.selectorText]}>{i18n.t("min")}</Text>
         <Text>  </Text>
-            <View style={[styles.selectorBG]}>
+            <View style={[styles.selectorBGPressure]}>
             <Picker
                 mode='dropdown'
                 selectedValue={this.state.temperature}
@@ -161,7 +163,8 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
         <Text style={[styles.selectorText]}>{"\u2103"}</Text>
     </View>);
 
-    let coldLine = (<View style={[styles.settingLine]}>
+    let coldLine = (
+    <View style={[styles.settingLine]}>
         <Image source={require('../assets/cold.png')} style={{aspectRatio: 1, width: "12%", alignSelf: 'center'}} fadeDuration={100}/>
         <Text>  </Text>
         <View style={[styles.selectorBG]}>
@@ -175,7 +178,22 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
             </Picker>
         </View> 
         <Text style={[styles.selectorText]}>{i18n.t("min")}</Text>
-    </View>);
+        <Text>  </Text>
+        <View style={[styles.selectorBGPressure]}>
+            <Picker
+                mode='dropdown'
+                selectedValue={this.state.pressure}
+                onValueChange={(itemValue, itemIndex) =>
+                    this.setState({pressure: itemValue})}>
+                <Picker.Item style={{fontSize:16}} label={i18n.t('P1')} value={1} />
+                <Picker.Item style={{fontSize:16}} label={i18n.t('P2')} value={2} />
+                <Picker.Item style={{fontSize:16}} label={i18n.t('P3')} value={3} />
+            </Picker>
+        </View>   
+        <Image source={require('../assets/compression.png')} style={{aspectRatio: 1, width: "12%", alignSelf: 'center'}} fadeDuration={100}/>
+    </View>
+
+);
 
     let content;
     switch (this.state.modeHotCold) {
@@ -468,6 +486,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#F6F5F5',
         borderRadius: 8,
         width: 100,
+    },
+    selectorBGPressure:{
+        backgroundColor: '#F6F5F5',
+        borderRadius: 8,
+        width: 120,
     },
     selectorBG2:{
         backgroundColor: '#F6F5F5',

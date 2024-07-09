@@ -9,9 +9,11 @@ interface ModesProps {
     title: string;
     totalRunTime: number;
     temperature: number;
+    description: string;
+    pressure: number;
     timeId: string;
     locked: boolean;
-    automode: boolean;
+    automode: number;
     actionList: any[];
     BLEConnection: any;
 }
@@ -72,17 +74,19 @@ export default class Modes extends Component<ModesProps, {}> {
         }
         console.log('select: ', this.props.title);
         this.props.navigation.navigate('Play', {
-            title: this.props.title,
-            totalRunTime: this.props.totalRunTime,
-            temperature: this.props.temperature,
-            actionList: this.props.actionList,
-            timeId: this.props.timeId,
-            locked: this.props.locked,
-            automode: this.props.automode,
+            // title: this.props.title,
+            // totalRunTime: this.props.totalRunTime,
+            // temperature: this.props.temperature,
+            // pressure: this.props.pressure,
+            // actionList: this.props.actionList,
+            // timeId: this.props.timeId,
+            // locked: this.props.locked,
+            // automode: this.props.automode,
         });
         eventEmitter.emit('ModeSelect', 
             {totalRunTime: this.props.totalRunTime,
             temperature: this.props.temperature,
+            pressure: this.props.pressure,
             actionList: this.props.actionList,
             automode: this.props.automode,
         });
@@ -137,9 +141,13 @@ export default class Modes extends Component<ModesProps, {}> {
                         <Text style={styles.contentText}>{i18n.t('TotalTime')+': '+this.props.totalRunTime+' '+i18n.t('min')}</Text>
                         <Text style={styles.contentText}>{i18n.t('TempRange')+': '+'~'+this.props.temperature+'\u2103'}</Text>
                         {this.props.locked?
-                        <Text style={styles.contentText}>{convertActionListToDescription(this.props.actionList)}</Text>
+                        <Text style={styles.contentText}>{this.props.description}</Text>
                         :<Text style={styles.contentText}>{convertActionListToDescription(this.props.actionList, true)}</Text>}
-                        
+                        <Text style={styles.contentText}>{
+                            this.props.pressure?
+                            i18n.t('Pressure')+': '+i18n.t('P'+this.props.pressure.toString()):
+                            ''
+                        }</Text>
                     </View>
                     <View style={[styles.rightPanel]}>
                         <TouchableOpacity style={styles.startButton} onPress={() => {this.selectMode()}}>

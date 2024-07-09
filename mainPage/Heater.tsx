@@ -83,6 +83,9 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
         eventEmitter.on('countingDown', (data: any) => {
             this.setState({ countingDown: data });
         });
+        eventEmitter.on('ModeSelect', (data: any) => {
+            this.setPressure(data.pressure-1);
+        });
     }
 
     setHeaterDrainage = async (heater: boolean=false, drainage:boolean=false) => {
@@ -196,7 +199,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                             <Text style={[styles.OC]}>{'\u2103'}</Text>  
                         </View>
                         <View style={[styles.temperature]}>
-                            <Image source={require('../assets/compression.png')} style={{aspectRatio: 1, width: "20%", alignSelf: 'center'}} fadeDuration={100}/>
+                            <Image source={require('../assets/compression.png')} style={{aspectRatio: 1, width: "20%", alignSelf: 'center'}} fadeDuration={10}/>
                             <View style={{width: 130}}>
                                 <Picker
                                     enabled={!(this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown)}
@@ -216,9 +219,9 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                                             console.log('itemValue', itemValue);
                                         }
                                     }>
-                                    <Picker.Item style={{fontSize:22}} label={i18n.t('low')} value={1} />
-                                    <Picker.Item style={{fontSize:22}} label={i18n.t('mid')} value={2} />
-                                    <Picker.Item style={{fontSize:22}} label={i18n.t('high')} value={3} />
+                                    <Picker.Item style={{fontSize:22}} label={i18n.t('P1')} value={1} />
+                                    <Picker.Item style={{fontSize:22}} label={i18n.t('P2')} value={2} />
+                                    <Picker.Item style={{fontSize:22}} label={i18n.t('P3')} value={3} />
                                     
                                 </Picker>
                             </View>

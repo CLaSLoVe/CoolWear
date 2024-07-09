@@ -36,13 +36,15 @@ export default class ModePage extends Component<{navigation:any}, {existModes:an
     return (
         <ScrollView>
             <View style={[globalStyles.page]}>
-            {existModes.map((item: { title: string; totalRunTime: number; temperature: number; actionList: any[]; locked:boolean; timeId:string; BLEConnection:boolean; automode:boolean}, index: React.Key | null | undefined) => (
+            {existModes.map((item: { title: string; totalRunTime: number; temperature: number; pressure: number; actionList: any[]; description:string; locked:boolean; timeId:string; BLEConnection:boolean; automode:number}, index: React.Key | null | undefined) => (
                 <Modes 
                     key={index}
                     title={item.title}
                     totalRunTime={item.totalRunTime}
                     temperature={item.temperature}
+                    pressure={item.pressure}
                     actionList={item.actionList}
+                    description={item.description}
                     timeId={item.timeId}
                     locked={item.locked}
                     automode={item.automode}

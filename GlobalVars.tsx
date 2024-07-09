@@ -102,7 +102,7 @@ export function  startToaster () {
 }
 
 export function isRunningFlag (flag:any) {
-  return flag == 1 || flag == 2 || flag == 3 || flag == 4 || flag == 5;
+  return flag == 1 || flag == 2 || flag == 3 || flag == 4 || flag == 5 || flag == 6 || flag == 9;
 }
 
 
@@ -111,6 +111,26 @@ export function stopCurrentToaster () {
     type: "warning",
     placement: "bottom",
     duration: 2000,
+    animationType: "zoom-in",
+  });
+}
+
+
+export function WaitToaster () {
+  Toast.show(i18n.t('PleaseWait'), {
+    type: "success",
+    placement: "bottom",
+    duration: 4000,
+    animationType: "zoom-in",
+  });
+}
+
+
+export function DontPressToaster () {
+  Toast.show(i18n.t('PleaseDontContinousPress'), {
+    type: "warning",
+    placement: "bottom",
+    duration: 4000,
     animationType: "zoom-in",
   });
 }
@@ -133,7 +153,7 @@ export async function postToSQLAPI(action: string, time_remain: string) {
     });
 
     if (response.status === 201) {
-      console.log('User added successfully');
+      // console.log('User added successfully');
     } else {
       console.log('Failed to add user');
     }
@@ -153,7 +173,7 @@ export async function postToSQLAPIdevice(start_count: number, end_count: number)
     });
 
     if (response.status === 201) {
-      console.log('User added successfully');
+      // console.log('User added successfully');
     } else {
       console.log('Failed to add user');
     }

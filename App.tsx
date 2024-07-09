@@ -160,28 +160,62 @@ export default function App() {
 
   // set initial data if not exist
   const checkAndSetInitialData = async () => {
-    const data = {
-      title:'Standard Rapid Contrast Therapy',
+    const mode1 = {
+      title:'Hybrid Rapid Contrast Therapy',
+      description: `1 min COLD 2 min HOT\n3 min COLD 2 min HOT\n4 min COLD 2 min HOT`,
       totalRunTime: 14,
       temperature: 40,
+      pressure: 3,
       actionList: [[1, false], [2, true], [3, false], [2, true], [4, false], [2, true]],
       timeId: "init",
       locked: true,
-      automode: true,
+      automode: 2,
     };
-    storage.load({
+    const mode2 = {
+      title:'Standard Rapid Contrast Therapy',
+      description: `1 min COLD 2 min HOT\n5 Cycles`,
+      totalRunTime: 15,
+      temperature: 40,
+      pressure: 3,
+      actionList: [[1, false], [2, true], [1, false], [2, true], [1, false], [2, true], [1, false], [2, true], [1, false], [2, true], ],
+      timeId: "init",
+      locked: true,
+      automode: 3,
+    };
+    const mode3 = {
+      title:'Cold Therapy',
+      description: '',
+      totalRunTime: 10,
+      temperature: 10,
+      pressure: 3,
+      actionList: [[1, false]],
+      timeId: "init",
+      locked: true,
+      automode: 4,
+    };
+    // storage.load({
+    //   key: 'modes',
+    //   id: 'mode1',
+    // })
+    // .then(ret => {
+    // })
+    // .catch(err => {
+    storage.save({
       key: 'modes',
-      id: 'init',
-    })
-    .then(ret => {
-    })
-    .catch(err => {
-      storage.save({
-        key: 'modes',
-        id: 'init',
-        data: data,
-      });
+      id: 'mode1',
+      data: mode1,
     });
+    storage.save({
+      key: 'modes',
+      id: 'mode2',
+      data: mode2,
+    });
+    storage.save({
+      key: 'modes',
+      id: 'mode3',
+      data: mode3,
+    });
+    // });
     storage.load({
       key: 'settings',
       id: 'language',

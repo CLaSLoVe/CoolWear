@@ -177,7 +177,16 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
     const {bleState} = this.state;
     return (
       <View style={{ width: '70%',}}>
-        <TouchableWithoutFeedback onPress={() => {this.handlePress()}} disabled={this.state.disabled}>
+        {
+          this.state.disabled?
+          <TouchableWithoutFeedback onPress={() => {this.handlePress()}} disabled={this.state.disabled}>
+            <View style={[styles.bleButton]}>
+                <Text style={[styles.whiteText]}>
+                    {i18n.t('PleaseScanQR') }
+                </Text>
+            </View>
+          </TouchableWithoutFeedback>:
+          <TouchableWithoutFeedback onPress={() => {this.handlePress()}} disabled={this.state.disabled}>
             <View style={[styles.bleButton]}>
                 {   bleState==0 ? (
                         <Text style={[styles.whiteText]}>
@@ -200,6 +209,8 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
                 }
                 </View>
         </TouchableWithoutFeedback>
+        }
+        
       </View>
     )
   }
@@ -231,7 +242,15 @@ const styles = StyleSheet.create({
         borderRadius:20,
         alignContent:'center',
         justifyContent:'center',
-    }
+    },
+    deadButton:{
+      backgroundColor:'lightblue',
+      height:80,
+      width: '90%',
+      borderRadius:20,
+      alignContent:'center',
+      justifyContent:'center',
+  }
 })
 
 function bytesToString(bytes: string | any[]) {
