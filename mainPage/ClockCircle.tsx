@@ -144,7 +144,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       if (isRunningFlag(data[7])){
         if (data[8]%16 == 0){
           this.setState({running_state: 1,
-            cyclePercentage: Math.round((data[10]*256+data[11])/(data[9]*60)*100),
+            cyclePercentage: data[7]==9?Math.round((data[10]*256+data[11])/20*100):Math.round((data[10]*256+data[11])/(data[9]*60)*100),
             countingDown: false,
             three_two_one: Full321,
           });
