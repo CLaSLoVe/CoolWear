@@ -106,6 +106,7 @@ export function isRunningFlag (flag:any) {
 }
 
 
+
 export function stopCurrentToaster () {
   Toast.show(i18n.t('PleaseStop'), {
     type: "warning",

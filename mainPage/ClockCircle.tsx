@@ -1,4 +1,4 @@
-import { Text, StyleSheet, View, TouchableHighlight, ActivityIndicator, Dimensions, Easing, Image  } from 'react-native'
+import { Text, StyleSheet, View, TouchableHighlight, ActivityIndicator, Dimensions, Easing, Image, Alert, Vibration  } from 'react-native'
 import React, { Component } from 'react'
 import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag, postToSQLAPI, postToSQLAPIdevice, WaitToaster, DontPressToaster} from '../GlobalVars';
 import { eventEmitter } from '../GlobalVars';
@@ -11,7 +11,7 @@ import { Toast } from 'react-native-toast-notifications';
 const Full321 = 5000;
 const oneSecond = 1000;
 
-export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean, ellipsis:string, therapy_counted:boolean, circle_title:string, disable_start:boolean}> {
+export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean, ellipsis:string, therapy_counted:boolean, circle_title:string, disable_start:boolean, current_completed_num:number}> {
   // timer: NodeJS.Timeout | undefined;
   screenWidth: number = 640;
   constructor(props: {}) {
@@ -23,7 +23,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       stop_running: false, 
       running_state: 0,  // 0: 停止 1: 运行 2: 暂停
       timeRemaining: 0, // 剩余时间
-      curHotCold: 0, // 当前是热水还是冷水
+      curHotCold: 0, // 当前是热水还是冷水 0cold 1hot 2drain
       cyclePercentage: 0, // 当前周期百分比
       three_two_one: Full321, // 3 2 1 倒计时
       countingDown: false, // 是否正在倒计时
@@ -33,6 +33,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       therapy_counted: false,
       circle_title: 'TimeRemaining',
       disable_start: false,
+      current_completed_num: -1,
     };
   }
 
@@ -135,8 +136,34 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
 
       postToSQLAPIdevice(data[14]*256+data[15], data[16]*256+data[17]);
 
-      if (data[7] == 9){
-        this.setState({circle_title: 'Drain'})
+      if (this.state.current_completed_num == -1){
+        this.setState({current_completed_num: data[16]*256+data[17]});
+      }
+      // console.log(this.state.current_completed_num, data[16]*256+data[17]);
+      if (data[16]*256+data[17] != this.state.current_completed_num){
+        this.setState({current_completed_num: data[16]*256+data[17]});
+
+        Alert.alert(
+          i18n.t('TherapyCompleted'),
+          i18n.t('TherapyCompletedMessage'),
+          [
+              {
+                  text: 'OK',
+                  onPress: () => {},
+                  style: 'cancel',
+              },
+          ],
+          {cancelable: false},
+        );
+        this.vibrateOnce();
+      }
+
+
+      if (data[7]==9){
+        this.setState({
+          circle_title: 'Drain',
+          curHotCold: 2,
+        })
       }else{
         this.setState({circle_title: 'TimeRemaining'})
       }
@@ -144,7 +171,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       if (isRunningFlag(data[7])){
         if (data[8]%16 == 0){
           this.setState({running_state: 1,
-            cyclePercentage: data[7]==9?Math.round((data[10]*256+data[11])/20*100):Math.round((data[10]*256+data[11])/(data[9]*60)*100),
+            cyclePercentage: (data[7]==9)?Math.round((data[10]*256+data[11])/20*100):Math.round((data[10]*256+data[11])/(data[9]*60)*100),
             countingDown: false,
             three_two_one: Full321,
           });
@@ -209,6 +236,10 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     }
   }
 
+
+  vibrateOnce = () => {
+    Vibration.vibrate(1000);
+  };
 
   formatTime(time: number){
     let minutes = Math.floor(time / 60);
@@ -401,7 +432,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
                     width={20}
                     fill={this.state.cyclePercentage}
                     rotation={0}
-                    tintColor={this.state.curHotCold==1?'#ff0000':'#00e0ff'}
+                    tintColor={this.state.curHotCold==2?'#00ad3a':this.state.curHotCold==1?'#ff0000':'#00e0ff'}
                     duration={0}
                     lineCap="round"
                     easing={Easing.linear}

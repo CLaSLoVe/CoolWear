@@ -60,6 +60,8 @@ export const resources = {
       PleaseScanQR: 'Please scan\nQR code \u2192',
       Drain: "Draining...",
       PleaseDontContinousPress: "Please don't press continuously",
+      TherapyCompleted: "Therapy Completed",
+      TherapyCompletedMessage: "Therapy completed, please click confirm",
     },
   },
   zh: {
@@ -118,6 +120,8 @@ export const resources = {
       PleaseScanQR: '请先扫描\n二维码 \u2192',
       Drain: "排水中...",
       PleaseDontContinousPress: "请勿连续点击",
+      TherapyCompleted: "疗程已完成",
+      TherapyCompletedMessage: "疗程已完成，请点击确认",
     },
   },
 };
