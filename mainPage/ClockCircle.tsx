@@ -142,9 +142,8 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       }
       // console.log(this.state.current_completed_num, data[16]*256+data[17]);
       if (data[16]*256+data[17] != this.state.current_completed_num){
-        this.setState({current_completed_num: data[16]*256+data[17]});
-
-        Alert.alert(
+        this.setState({current_completed_num: data[16]*256+data[17]}, ()=>{
+           Alert.alert(
           i18n.t('TherapyCompleted'),
           i18n.t('TherapyCompletedMessage'),
           [
@@ -157,6 +156,8 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
           {cancelable: false},
         );
         this.vibrateOnce();
+        }
+        );
       }
 
 
