@@ -9,6 +9,7 @@ import i18n from './locales';
 import DeviceInfo from 'react-native-device-info';
 import { getUniqueId, getManufacturer } from 'react-native-device-info';
 import axios from 'axios';
+import { AppState } from 'react-native';
 
 // export const CWid = "F4:12:FA:F8:F1:FE";
 // export const serviceid = "6e400020-b5a3-f393-e0a9-e50e24dcca9d";
@@ -66,21 +67,54 @@ export const globalStyles = StyleSheet.create({
   },  
 })
 
-export async function readDataFromDevice(){
-  BleManager.startNotification(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid2).then(() => {
-    console.log('Started notification on ' + globalVals.CWid);
-    bleManagerEmitter.addListener(
-      "BleManagerDidUpdateValueForCharacteristic",
-      ({ value, peripheral, characteristic, service }) => {
-        // console.log(`Received ${value}`);
-        eventEmitter.emit('Notify', value);
-      }
-    );
+// export async function readDataFromDevice(){
+//   BleManager.startNotification(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid2).then(() => {
+//     console.log('Started notification on ' + globalVals.CWid);
+//     bleManagerEmitter.addListener(
+//       "BleManagerDidUpdateValueForCharacteristic",
+//       ({ value, peripheral, characteristic, service }) => {
+//         // console.log(`Received ${value}`);
+//         eventEmitter.emit('Notify', value);
+//       }
+//     );
 
-  }).catch((error) => {
+//   }).catch((error) => {
+//     console.log('Notification error:', error);
+//   });
+// };
+
+export async function readDataFromDevice() {
+  try {
+    await BleManager.startNotification(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid2);
+    console.log('Started notification on ' + globalVals.CWid);
+
+    const handleUpdate = ({ value, peripheral, characteristic, service }: { value: any, peripheral: any, characteristic: any, service: any }) => {
+      eventEmitter.emit('Notify', value);
+    };
+
+    let subscription = bleManagerEmitter.addListener("BleManagerDidUpdateValueForCharacteristic", handleUpdate);
+
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState === 'background') {
+        subscription.remove();
+        console.log('Stopped notification as app went to background');
+      } else if (nextAppState === 'active') {
+        subscription = bleManagerEmitter.addListener("BleManagerDidUpdateValueForCharacteristic", handleUpdate);
+        console.log('Resumed notification as app came to foreground');
+      }
+    };
+
+    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      appStateSubscription.remove();
+      subscription.remove();
+    };
+
+  } catch (error) {
     console.log('Notification error:', error);
-  });
-};
+  }
+}
 
 
 export function  connectToaster () {

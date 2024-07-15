@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     },
     whiteText:{
         color:'white',
-        fontSize:25,
+        fontSize:20,
         textAlign:'center',
         textAlignVertical:'center',
         fontWeight:'bold',
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     },
     bleButton:{
         backgroundColor:'darkblue',
-        height:80,
+        height:60,
         width: '90%',
         borderRadius:20,
         alignContent:'center',
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     },
     deadButton:{
       backgroundColor:'lightblue',
-      height:80,
+      height:60,
       width: '90%',
       borderRadius:20,
       alignContent:'center',

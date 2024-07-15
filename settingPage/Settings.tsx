@@ -1,4 +1,4 @@
-import { Text, StyleSheet, View, TouchableOpacity, Switch, TouchableOpacityComponent, TextInput, Alert } from 'react-native'
+import { Text, StyleSheet, View, TouchableOpacity, Switch, TouchableOpacityComponent, TextInput, Alert, ScrollView } from 'react-native'
 import React, { Component } from 'react'
 import { globalVals, globalStyles, storage, eventEmitter } from '../GlobalVars'
 import {Picker} from '@react-native-picker/picker';
@@ -131,66 +131,78 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
     }
 
   render() {
-    let hotLine = (<View style={[styles.settingLine]}>
-        <Image source={require('../assets/hot.png')} style={{aspectRatio: 1, width: "12%", alignSelf: 'center'}} fadeDuration={100}/>
-        <Text>  </Text>
-        <View style={[styles.selectorBG]}>
-            <Picker
-                mode='dropdown'
-                selectedValue={this.state.hotDur}
-                onValueChange={(itemValue, itemIndex) =>
-                    {
-                        this.setState({hotDur: itemValue});
-                    }
-                }>
-                {this.generatePickerItems(globalVals.hotDurationRange[0], globalVals.hotDurationRange[1])}
-            </Picker>
-        </View> 
-        <Text style={[styles.selectorText]}>{i18n.t("min")}</Text>
-        <Text>  </Text>
-            <View style={[styles.selectorBGPressure]}>
-            <Picker
-                mode='dropdown'
-                selectedValue={this.state.temperature}
-                onValueChange={(itemValue, itemIndex) =>
-                    {
-                        this.setState({temperature: itemValue});
-                    }
-                }>
-                {this.generatePickerItems(globalVals.temperatureRange[0], globalVals.temperatureRange[1])}
-            </Picker>
-        </View> 
-        <Text style={[styles.selectorText]}>{"\u2103"}</Text>
-    </View>);
+    let hotLine = (
+    <View>
+        <View style={[styles.settingLine]}>
+            <Image source={require('../assets/hot.png')} style={{aspectRatio: 1, width: "12%", alignSelf: 'center'}} fadeDuration={100}/>
+            <Text>  </Text>
+            <View style={[styles.selectorBG]}>
+                <Picker
+                    mode='dropdown'
+                    selectedValue={this.state.hotDur}
+                    onValueChange={(itemValue, itemIndex) =>
+                        {
+                            this.setState({hotDur: itemValue});
+                        }
+                    }>
+                    {this.generatePickerItems(globalVals.hotDurationRange[0], globalVals.hotDurationRange[1])}
+                </Picker>
+            </View> 
+            <Text style={[styles.selectorText]}>{i18n.t("min")}</Text>
+        </View>
+        <View style={[styles.settingLine]}>
+            <Text>            </Text>
+                <View style={[styles.selectorBG]}>
+                <Picker
+                    mode='dropdown'
+                    selectedValue={this.state.temperature}
+                    onValueChange={(itemValue, itemIndex) =>
+                        {
+                            this.setState({temperature: itemValue});
+                        }
+                    }>
+                    {this.generatePickerItems(globalVals.temperatureRange[0], globalVals.temperatureRange[1])}
+                </Picker>
+            </View> 
+            <Text style={[styles.selectorText]}>{"\u2103"}</Text>
+        </View>
+    </View>
+    );
 
     let coldLine = (
-    <View style={[styles.settingLine]}>
-        <Image source={require('../assets/cold.png')} style={{aspectRatio: 1, width: "12%", alignSelf: 'center'}} fadeDuration={100}/>
-        <Text>  </Text>
-        <View style={[styles.selectorBG]}>
-            <Picker
-                
-                mode='dropdown'
-                selectedValue={this.state.coldDur}
-                onValueChange={(itemValue, itemIndex) =>
-                    this.setState({coldDur: itemValue})}>
-                {this.generatePickerItems(globalVals.hotDurationRange[0], globalVals.hotDurationRange[1])}
-            </Picker>
-        </View> 
-        <Text style={[styles.selectorText]}>{i18n.t("min")}</Text>
-        <Text>  </Text>
-        <View style={[styles.selectorBGPressure]}>
-            <Picker
-                mode='dropdown'
-                selectedValue={this.state.pressure}
-                onValueChange={(itemValue, itemIndex) =>
-                    this.setState({pressure: itemValue})}>
-                <Picker.Item style={{fontSize:16}} label={i18n.t('P1')} value={1} />
-                <Picker.Item style={{fontSize:16}} label={i18n.t('P2')} value={2} />
-                <Picker.Item style={{fontSize:16}} label={i18n.t('P3')} value={3} />
-            </Picker>
-        </View>   
-        <Image source={require('../assets/compression.png')} style={{aspectRatio: 1, width: "12%", alignSelf: 'center'}} fadeDuration={100}/>
+    <View>
+        <View style={[styles.settingLine]}>
+            <Image source={require('../assets/cold.png')} style={{aspectRatio: 1, width: "12%", alignSelf: 'center'}} fadeDuration={100}/>
+            <Text>  </Text>
+            <View style={[styles.selectorBG]}>
+                <Picker
+                    
+                    mode='dropdown'
+                    selectedValue={this.state.coldDur}
+                    onValueChange={(itemValue, itemIndex) =>
+                        this.setState({coldDur: itemValue})}>
+                    {this.generatePickerItems(globalVals.hotDurationRange[0], globalVals.hotDurationRange[1])}
+                </Picker>
+            </View> 
+            <Text style={[styles.selectorText]}>{i18n.t("min")}</Text>
+        </View>
+        <View style={[styles.settingLine]}>
+            {/* <Image source={require('../assets/compression.png')} style={{aspectRatio: 1, width: "12%", alignSelf: 'center'}} fadeDuration={100}/>
+            <Text>  </Text> */}
+            <Text>            </Text>
+            <View style={[styles.selectorBG]}>
+                <Picker
+                    mode='dropdown'
+                    selectedValue={this.state.pressure}
+                    onValueChange={(itemValue, itemIndex) =>
+                        this.setState({pressure: itemValue})}>
+                    <Picker.Item style={{fontSize:16}} label={i18n.t('P1')} value={1} />
+                    <Picker.Item style={{fontSize:16}} label={i18n.t('P2')} value={2} />
+                    <Picker.Item style={{fontSize:16}} label={i18n.t('P3')} value={3} />
+                </Picker>
+            </View>   
+            <Text style={[styles.selectorText]}>{i18n.t("Pressure")}</Text>
+        </View>
     </View>
 
 );
@@ -204,7 +216,8 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
         content = coldLine;
         break;
         case '3':
-        content = (<View>
+        content = (
+        <View>
             {
                 this.state.hotFirst?
                 <View>
@@ -236,6 +249,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
     }
 
     return (
+        <ScrollView>
         <View style={[globalStyles.page]}>
             <TouchableOpacity onPress={()=>{this.props.navigation.navigate("SettingsScreen")}}>
                 <Text style={[styles.ButtonText]}>{"<"}</Text>
@@ -312,7 +326,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                 </View>
             </View>
         </View> 
-        
+        </ScrollView>
     )
   }
 }
@@ -475,7 +489,7 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 30,
         alignSelf: 'flex-start',
-        padding: 10,
+        padding: 5,
     },
     ButtonHandler:{
         color: 'black',
@@ -485,12 +499,12 @@ const styles = StyleSheet.create({
     selectorBG:{
         backgroundColor: '#F6F5F5',
         borderRadius: 8,
-        width: 100,
+        width: 150,
     },
     selectorBGPressure:{
         backgroundColor: '#F6F5F5',
         borderRadius: 8,
-        width: 120,
+        width: 110,
     },
     selectorBG2:{
         backgroundColor: '#F6F5F5',
@@ -501,7 +515,7 @@ const styles = StyleSheet.create({
     },
     selectorText:{
         color: 'black',
-        fontSize: 20,
+        fontSize: 16,
         alignSelf: 'center',
     },
     settingLine:{
@@ -519,6 +533,12 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 20,
     },
+    divider: {
+        height: 100, // 分隔线的高度
+        backgroundColor: '#ffff', // 分隔线的颜色
+        marginVertical: 10, // 分隔线上下的间距
+        width: '100%',
+      },
 })
 
 const exStyles = StyleSheet.create({
@@ -540,4 +560,5 @@ const exStyles = StyleSheet.create({
         ...styles.squreButton,
         backgroundColor: '#EE6F57',
     },
+
 })

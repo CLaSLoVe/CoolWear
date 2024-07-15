@@ -2,6 +2,7 @@ import { Text, StyleSheet, View, TouchableHighlight, ActivityIndicator, Dimensio
 import React, { Component } from 'react'
 import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag, postToSQLAPI, postToSQLAPIdevice, WaitToaster, DontPressToaster} from '../GlobalVars';
 import { eventEmitter } from '../GlobalVars';
+
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import BleManager from 'react-native-ble-manager';
 import i18n from '../locales';
@@ -480,7 +481,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    padding: 30,
+    padding: 10,
   },
   TextContainer: {
     flexDirection: 'column',

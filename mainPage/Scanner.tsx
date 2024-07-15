@@ -99,7 +99,7 @@ export default class ScanScreen extends Component<{}, {showScanner:boolean}> {
     },
     buttonTouchable: {
         backgroundColor:'darkblue',
-        height:80,
+        height:60,
         width: '90%',
         borderRadius:20,
         alignContent:'center',
@@ -107,7 +107,7 @@ export default class ScanScreen extends Component<{}, {showScanner:boolean}> {
     },
     whiteText:{
         color:'white',
-        fontSize:25,
+        fontSize:20,
         textAlign:'center',
         textAlignVertical:'center',
         fontWeight:'bold',
