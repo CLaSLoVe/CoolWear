@@ -28,7 +28,7 @@ export default class ScanScreen extends Component<{}, {showScanner:boolean}> {
             Toast.show(i18n.t('IsCW'), {
                 type: "success",
                 placement: "bottom",
-                duration: 2000,
+                duration: 5000,
                 animationType: "zoom-in",
               });
             storage.save({

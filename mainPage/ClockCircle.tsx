@@ -188,7 +188,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
           // };
 
           if (this.state.timeRemaining <= 5 && !this.state.therapy_counted){
-              postToSQLAPI('complete', this.state.timeRemaining.toString());
+              // postToSQLAPI('complete', this.state.timeRemaining.toString());
               this.setState({therapy_counted: true});
             };
             if (data[9]*60 - (data[10]*256+data[11]) > 5){
@@ -350,7 +350,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       while (!success){
         try {
           await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x06, 0x02, this.state.heater, 0x00, 0x00, 0x00])
-          postToSQLAPI('paused', this.state.timeRemaining.toString());
+          // postToSQLAPI('paused', this.state.timeRemaining.toString());
           success = true;
         } catch (error) {
           console.log(error)
@@ -366,7 +366,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       while (!success){
         try {
           await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x06, 0x03, this.state.heater, 0x00, 0x00, 0x00]);
-          postToSQLAPI('continue', this.state.timeRemaining.toString());
+          // postToSQLAPI('continue', this.state.timeRemaining.toString());
           success = true;
         } catch (error) {
           console.log(error)
@@ -381,7 +381,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     while (success>=0){
       try {
         await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, select_mode, this.state.heater, 0x00, 0x00, 0x00]);
-        postToSQLAPI('start', 'unknown');
+        // postToSQLAPI('start', 'unknown');
         this.setState({start_running: false});
         break;
       } catch (error) {
@@ -415,7 +415,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     while (success>=0){
       try {
         await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x00, this.state.heater, 0x00, 0x00, 0x00]);
-        postToSQLAPI('stop', this.state.timeRemaining.toString());
+        // postToSQLAPI('stop', this.state.timeRemaining.toString());
         this.setState({stop_running: false});
         break;
       } catch (error) {
