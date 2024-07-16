@@ -1,6 +1,6 @@
 import { Text, StyleSheet, View, TouchableHighlight, ActivityIndicator, Dimensions, Easing, Image, Alert, Vibration  } from 'react-native'
 import React, { Component } from 'react'
-import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag, postToSQLAPI, postToSQLAPIdevice, WaitToaster, DontPressToaster} from '../GlobalVars';
+import GlobalVars, { globalVals, connectToaster, startToaster, stopCurrentToaster, isRunningFlag, postToSQLAPI, postToSQLAPIdevice, WaitToaster, DontPressToaster, setPressure, setTemperature} from '../GlobalVars';
 import { eventEmitter } from '../GlobalVars';
 
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
@@ -143,7 +143,8 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       // console.log(this.state.current_completed_num, data[16]*256+data[17]);
       if (data[16]*256+data[17] != this.state.current_completed_num){
         this.setState({current_completed_num: data[16]*256+data[17]}, ()=>{
-          this.setTemperature(48);
+          setTemperature(48);
+          setPressure(3);
            Alert.alert(
           i18n.t('TherapyCompleted'),
           i18n.t('TherapyCompletedMessage'),
@@ -210,19 +211,9 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     // console.log(this.state.countingDown);
   }
 
-  setTemperature = async(temperature:number) => {
-    try {
-      await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x03, temperature, 0x00, 0x00, 0x00, 0x00]);
-      console.log('设置温度为', temperature);
-    } catch (error) {
-      console.log(error)
-    };
-  }
-
-
 
   manualMode = async(on:boolean, numCycles:number, hotFirst:boolean, coldDur:number, hotDur:number, temperature:number, isSingle:boolean, select_mode:number=1) => {
-    await this.setTemperature(temperature);
+    await setTemperature(temperature);
     let success = false;
     while (!success){
       try {
@@ -237,7 +228,6 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
         // if (on){
         //   this.startCW();
         // }else{
-          
         // }
         this.startCW(select_mode);
       } catch (error) {
@@ -411,7 +401,8 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     // console.log('stopCW');
     let success = globalVals.tryTimes;
     this.setState({stop_running: true});
-    await this.setTemperature(48);
+    await setTemperature(48);
+    await setPressure(3);
     while (success>=0){
       try {
         await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x01, 0x00, this.state.heater, 0x00, 0x00, 0x00]);

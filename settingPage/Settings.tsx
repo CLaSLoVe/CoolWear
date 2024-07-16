@@ -26,16 +26,16 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
         super(props);
         this.state = {
             modeHotCold: '3',
-            temperature: 40,
-            hotDur: 6,
-            coldDur: 6,
-            pressure: 1,
+            temperature: 48,
+            hotDur: 2,
+            coldDur: 3,
+            pressure: 3,
             radioButtons: [
                 { id: '1', label: i18n.t('Hot') },
                 { id: '2', label: i18n.t('Cold') },
                 { id: '3', label: i18n.t('Both') },
             ],
-            numCycles: 1,
+            numCycles: 3,
             totalRunTime: 0,
             title: '',
             hotFirst: false,

@@ -225,3 +225,24 @@ export async function postToSQLAPIdevice(start_count: number, end_count: number)
     console.error('Error:', error);
   }
 }
+
+
+export async function setPressure(pressure: number){
+  try {
+      await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x04, pressure, 0x00, 0x00, 0x00, 0x00]);
+      console.log('设置压力为', pressure)
+  } catch (error) {
+      console.log(error)
+  }
+  console.log('设置ok', [0xa1, 0x04, pressure, 0x00, 0x00, 0x00, 0x00]);
+}
+
+export async function setTemperature(temperature: number){
+  try {
+    await BleManager.write(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid, [0xa1, 0x03, temperature, 0x00, 0x00, 0x00, 0x00]);
+    console.log('设置温度为', temperature);
+  } catch (error) {
+    console.log(error)
+  };
+  console.log('设置ok', [0xa1, 0x02, temperature, 0x00, 0x00, 0x00, 0x00]);
+}
