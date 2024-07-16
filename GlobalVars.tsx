@@ -126,6 +126,15 @@ export function  connectToaster () {
   });
 }
 
+export function  errorConnectionToaster () {
+  Toast.show(i18n.t('ErrorConnection'), {
+    type: "error",
+    placement: "bottom",
+    duration: 2000,
+    animationType: "zoom-in",
+  });
+}
+
 export function  startToaster () {
   Toast.show(i18n.t('StartFailed'), {
     type: "warning",

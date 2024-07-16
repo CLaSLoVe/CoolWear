@@ -13,4 +13,8 @@ cd android
 ./gradlew assembleRelease
 ```
 
+# Licensing Information 📜
+This project makes its source code visible, but it is not licensed for public use, modification, or distribution (i.e., No license).
+
+
 Get ready to look 👀 and feel 🙌 cooler than ever with the CoolWear app! 😎💯

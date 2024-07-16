@@ -62,6 +62,7 @@ export const resources = {
       PleaseDontContinousPress: "Please don't press continuously",
       TherapyCompleted: "Therapy Completed",
       TherapyCompletedMessage: "Therapy completed, please click confirm",
+      ErrorConnection: "Error in connection, please retry",
     },
   },
   zh: {
@@ -122,6 +123,7 @@ export const resources = {
       PleaseDontContinousPress: "请勿连续点击",
       TherapyCompleted: "疗程已完成",
       TherapyCompletedMessage: "疗程已完成，请点击确认",
+      ErrorConnection: "连接错误，请重试",
     },
   },
 };

@@ -158,6 +158,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
         this.vibrateOnce();
         }
         );
+
       }
 
 
