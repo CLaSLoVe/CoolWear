@@ -30,17 +30,18 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
             hotDur: 2,
             coldDur: 3,
             pressure: 3,
+            numCycles: 3,
+            totalRunTime: 0,
+            title: '',
+            hotFirst: false,
             radioButtons: [
                 { id: '1', label: i18n.t('Hot') },
                 { id: '2', label: i18n.t('Cold') },
                 { id: '3', label: i18n.t('Both') },
             ],
-            numCycles: 3,
-            totalRunTime: 0,
-            title: '',
-            hotFirst: false,
         };
     }
+    
 
     reset = () => {
         this.setState({
