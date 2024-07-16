@@ -14,7 +14,7 @@ cd android
 ```
 
 # Licensing Information 📜
-This project makes its source code visible, but it is not licensed for public use, modification, or distribution (i.e., No license).
+This project makes its source code visible, but it is not licensed for public use, modification, or distribution (i.e., No license). However, you can use the release version.
 
 
 Get ready to look 👀 and feel 🙌 cooler than ever with the CoolWear app! 😎💯
