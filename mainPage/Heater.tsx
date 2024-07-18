@@ -30,6 +30,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
     }
 
     componentWillUnmount(): void {
+        this.setState({justStartNotify:false});
         eventEmitter.removeListener('Notify', ()=>{});
         eventEmitter.removeListener('BLEConnection', ()=>{});
         eventEmitter.removeListener('countingDown', ()=>{});
@@ -54,7 +55,12 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                         return NOTIFY_MIN+1;
                     }
                     return item+1;
-                })
+                }),
+                
+            },()=>{
+            //  if (this.state.running_state != 0){
+            //     this.setState({})
+            //  }       
             });
             if (this.state.notifyCountList[0] >= NOTIFY_MIN) {
                 this.setState({compressionState: data[13]+1});
@@ -159,13 +165,6 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                                 let timer = setTimeout(() => {
                                     this.setState({
                                         disabledHeater: false,
-                                        // here may be a bug
-                                        // notifyCountList: this.state.notifyCountList.map((item, index) => {
-                                        //     if (index == 1){
-                                        //         return 0;
-                                        //     }
-                                        //     return item;
-                                        // })
                                     });
                                     clearTimeout(timer);
                                 }, globalVals.heaterWaitingTime);

@@ -62,6 +62,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
       };
 
       componentWillUnmount() {
+        this.setDisconnect();
         this.handlerDisconnect.remove();
       }
     

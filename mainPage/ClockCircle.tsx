@@ -453,7 +453,8 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
                     easing={Easing.linear}
                     backgroundColor="#3d5875" />
             </View>
-            {this.state.waiting ?
+            {false?
+            // this.state.waiting ?
             <View style={[styles.TextContainer]}>
               <ActivityIndicator size="large" color="white" /> 
             </View>:
