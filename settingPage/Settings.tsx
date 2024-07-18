@@ -47,10 +47,10 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
         this.setState({
             title: '',
             modeHotCold: '3',
-            temperature: 40,
-            hotDur: 5,
-            coldDur: 5,
-            numCycles: 1,
+            temperature: 48,
+            hotDur: 2,
+            coldDur:3,
+            numCycles: 3,
         });
     }
 

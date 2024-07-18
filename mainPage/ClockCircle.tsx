@@ -12,7 +12,7 @@ import { Toast } from 'react-native-toast-notifications';
 const Full321 = 5000;
 const oneSecond = 1000;
 
-export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean, ellipsis:string, therapy_counted:boolean, circle_title:string, disable_start:boolean, current_completed_num:number}> {
+export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean, ellipsis:string, therapy_counted:boolean, circle_title:string, disable_start:boolean, current_completed_num:number, justStartNotify:boolean}> {
   // timer: NodeJS.Timeout | undefined;
   screenWidth: number = 640;
   constructor(props: {}) {
@@ -35,6 +35,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       circle_title: 'TimeRemaining',
       disable_start: false,
       current_completed_num: -1,
+      justStartNotify: true,
     };
   }
 
@@ -45,6 +46,11 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
   // };
 
   componentWillUnmount(): void {
+    eventEmitter.removeAllListeners('BLEConnection');
+    eventEmitter.removeAllListeners('ModeSelect');
+    eventEmitter.removeAllListeners('Notify');
+    eventEmitter.removeAllListeners('Heater');
+
     
   }
 
@@ -57,6 +63,16 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     // ];
     
     // this.preLoadImages(imagePaths);
+
+    // this.deviceDisconnectSubscription = BleManager.onDeviceDisconnected((error, disconnectedDevice) => {
+    //   if (error) {
+    //     console.log("Error during device disconnection:", error);
+    //   } else if (disconnectedDevice && disconnectedDevice.id === this.state.device?.id) {
+    //     this.setState({ isConnected: false });
+    //     Alert.alert("Device Disconnected", "The Bluetooth device has been disconnected.");
+    //   }
+    // });
+
 
     this.setState({timeRemaining: this.state.full_time});    
     this.screenWidth = Dimensions.get('window').width;
@@ -134,7 +150,6 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
         timeRemaining: data[1]*256 + data[2] + 1,
         curHotCold: data[8]>>4,
       });
-
       postToSQLAPIdevice(data[14]*256+data[15], data[16]*256+data[17]);
 
       if (this.state.current_completed_num == -1){
@@ -159,11 +174,8 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
         );
         this.vibrateOnce();
         }
-        );
-
-      }
-
-
+        )};
+      
       if (data[7]==9){
         this.setState({
           circle_title: 'Drain',

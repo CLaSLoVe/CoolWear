@@ -11,7 +11,7 @@ import EventEmitter from 'eventemitter3';
 const NOTIFY_MIN = 3;
 
 
-export default class Heater extends Component<{}, { heater: boolean, drainage:boolean, coldTemperature: number, hotTemperature: number, compressionState:number, running_state:number, isBLEConnected:boolean, countingDown:boolean, disabledHeater:boolean, notifyCountList: number[] }> {
+export default class Heater extends Component<{}, { heater: boolean, drainage:boolean, coldTemperature: number, hotTemperature: number, compressionState:number, running_state:number, isBLEConnected:boolean, countingDown:boolean, disabledHeater:boolean, notifyCountList: number[], justStartNotify:boolean}> {
     constructor(props: {}) {
         super(props);
         this.state = {
@@ -24,12 +24,27 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
             isBLEConnected: false, // 是否连接蓝牙
             countingDown: false,
             disabledHeater: false,
-            notifyCountList: [NOTIFY_MIN, NOTIFY_MIN, NOTIFY_MIN] // 通知次数 pressure, heater, drainage
+            notifyCountList: [NOTIFY_MIN, NOTIFY_MIN, NOTIFY_MIN], // 通知次数 pressure, heater, drainage
+            justStartNotify: true,
         };
+    }
+
+    componentWillUnmount(): void {
+        eventEmitter.removeListener('Notify', ()=>{});
+        eventEmitter.removeListener('BLEConnection', ()=>{});
+        eventEmitter.removeListener('countingDown', ()=>{});
+        eventEmitter.removeListener('ModeSelect', ()=>{});
     }
 
     componentDidMount(): void {
         eventEmitter.on('Notify', (data: any) => {
+
+            if (this.state.justStartNotify){
+                this.setState({justStartNotify: false}, ()=>{
+                  this.setState({heater: Boolean(data[12] % 16)});
+                });
+              }
+
             this.setState({
                 coldTemperature: Math.floor((data[3] * 256 + data[4]) / 10),
                 hotTemperature: Math.floor((data[5] * 256 + data[6]) / 10),

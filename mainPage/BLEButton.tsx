@@ -6,7 +6,7 @@ import i18n from '../locales/index';
 import {Toast} from "react-native-toast-notifications";
 
 
-
+import { NativeEventEmitter, NativeModules } from 'react-native';
 
 import BleManager, {
     BleDisconnectPeripheralEvent,
@@ -17,6 +17,9 @@ import BleManager, {
     Peripheral,
 } from 'react-native-ble-manager';
 import Scanner from './Scanner';
+
+const BleManagerModule = NativeModules.BleManager;
+const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
 
 export default class BLEButton extends Component<{}, {bleState: number, disabled: boolean, data: number[]}> {
@@ -29,7 +32,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
         };
     }
 
-    
+    handlerDisconnect: any;
 
     componentDidMount() {
         BleManager.start({showAlert: false})
@@ -48,7 +51,18 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
             globalVals.CWid = ret;
             console.log('UUID loaded: ', ret);
           }
+
+          this.handlerDisconnect = bleManagerEmitter.addListener(
+            'BleManagerDisconnectPeripheral',
+            this.setDisconnect
+          );
+
+
         });
+      };
+
+      componentWillUnmount() {
+        this.handlerDisconnect.remove();
       }
     
     handleDisconnect = () => {
@@ -63,10 +77,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
                 {
                     text: 'OK',
                     onPress: async () => {
-                        await BleManager.disconnect(globalVals.CWid);
-                        this.setState({ bleState: 0, disabled: true });
-                        console.log('BLE Disconnected');
-                        eventEmitter.emit('BLEConnection', false);
+                        await this.setDisconnect();
                         
                         // 防止卡死
                         setTimeout(() => {
@@ -78,6 +89,15 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
 
         );
     }
+
+    setDisconnect = async() => {
+      await BleManager.disconnect(globalVals.CWid);
+      this.setState({ bleState: 0});
+      console.log('BLE Disconnected');
+      eventEmitter.emit('BLEConnection', false);
+    }
+
+
     handlePress = async () => {
       if (this.state.bleState == 0){
           console.log('BLE Connecting')

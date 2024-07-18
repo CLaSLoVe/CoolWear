@@ -66,6 +66,11 @@ export default class Modes extends Component<ModesProps, {}> {
         //     this.setState({ BLEConnection: data });
         // });
     }
+
+    componentWillUnmount(): void {
+        eventEmitter.removeListener('Notify', () => {});
+        // eventEmitter.removeListener('BLEConnection', () => {});
+    }
     
     selectMode = () => {
         if (!this.props.BLEConnection) {

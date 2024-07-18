@@ -23,6 +23,11 @@ export default class ModePage extends Component<{navigation:any}, {existModes:an
         });
     }
 
+    componentWillUnmount(): void {
+        eventEmitter.removeListener('refreshModes', this.refreshModes);
+        eventEmitter.removeListener('BLEConnection', this.refreshModes);
+    }
+
     refreshModes = () => {
         storage.getAllDataForKey('modes').then((modes) => {
             this.setState({existModes: modes})
