@@ -11,7 +11,7 @@ import EventEmitter from 'eventemitter3';
 const NOTIFY_MIN = 3;
 
 
-export default class Heater extends Component<{}, { heater: boolean, drainage:boolean, coldTemperature: number, hotTemperature: number, compressionState:number, running_state:number, isBLEConnected:boolean, countingDown:boolean, disabledHeater:boolean, notifyCountList: number[], justStartNotify:boolean}> {
+export default class Heater extends Component<{}, { heater: boolean, drainage:boolean, coldTemperature: number, hotTemperature: number, compressionState:number, running_state:number, isBLEConnected:boolean, countingDown:boolean, disabledHeater:boolean, notifyCountList: number[], justStartNotify:boolean, mode_selecting:boolean}> {
     constructor(props: {}) {
         super(props);
         this.state = {
@@ -26,6 +26,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
             disabledHeater: false,
             notifyCountList: [NOTIFY_MIN, NOTIFY_MIN, NOTIFY_MIN], // 通知次数 pressure, heater, drainage
             justStartNotify: true,
+            mode_selecting: false,
         };
     }
 
@@ -39,6 +40,10 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
 
     componentDidMount(): void {
         eventEmitter.on('Notify', (data: any) => {
+
+            if (isRunningFlag(data[7])){
+                this.setState({mode_selecting: false,});
+            }
 
             if (this.state.justStartNotify){
                 this.setState({justStartNotify: false}, ()=>{
@@ -106,6 +111,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
         });
         eventEmitter.on('ModeSelect', (data: any) => {
             this.setPressure(data.pressure-1);
+            this.setState({mode_selecting: true});
         });
     }
 
@@ -153,7 +159,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                         <Switch
                             trackColor={{ false: "#767577", true: "#ff0000" }}
                             value={this.state.heater}
-                            disabled={this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown || this.state.disabledHeater}
+                            disabled={this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown || this.state.disabledHeater || this.state.mode_selecting}
                             onValueChange={(value) => {
                                 this.setState({
                                     heater: value,
@@ -176,7 +182,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                         <Switch
                             trackColor={{ false: "#767577", true: "#ff0000" }}
                             value={this.state.drainage}
-                            disabled={this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown}
+                            disabled={this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown || this.state.mode_selecting}
                             onValueChange={(value) => {
                                 this.setState({
                                     drainage: value,
@@ -216,7 +222,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                             <Image source={require('../assets/compression.png')} style={{aspectRatio: 1, width: "20%", alignSelf: 'center'}} fadeDuration={10}/>
                             <View style={{width: 130}}>
                                 <Picker
-                                    enabled={!(this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown)}
+                                    enabled={!(this.state.running_state != 0 || !this.state.isBLEConnected || this.state.countingDown) && !this.state.mode_selecting}
                                     mode='dropdown'
                                     selectedValue={this.state.compressionState}
                                     onValueChange={(itemValue, itemIndex) =>

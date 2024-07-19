@@ -12,7 +12,7 @@ import { Toast } from 'react-native-toast-notifications';
 const Full321 = 5000;
 const oneSecond = 1000;
 
-export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean, ellipsis:string, therapy_counted:boolean, circle_title:string, disable_start:boolean, current_completed_num:number, justStartNotify:boolean}> {
+export default class ClockCircle extends Component<{}, {full_time:number, disabled:boolean, start_running: boolean, stop_running: boolean, timeRemaining:any, running_state:number, three_two_one:number, countingDown:boolean, curHotCold:number, cyclePercentage:number, heater:number, waiting:boolean, ellipsis:string, therapy_counted:boolean, circle_title:string, disable_start:boolean, current_completed_num:number, justStartNotify:boolean, mode_selecting:boolean}> {
   // timer: NodeJS.Timeout | undefined;
   screenWidth: number = 640;
   constructor(props: {}) {
@@ -36,6 +36,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       disable_start: false,
       current_completed_num: -1,
       justStartNotify: true,
+      mode_selecting: false,
     };
   }
 
@@ -106,6 +107,9 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
         stopCurrentToaster();
         return
       }
+
+      this.setState({mode_selecting: true});
+
       if (data.automode){
         this.manualMode(false, 0, false, 0, 0, 0, false, data.automode);
         WaitToaster();
@@ -114,6 +118,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       //
       this.setState(
         { 
+          mode_selecting: true,
           full_time: data.totalRunTime*60, 
           timeRemaining: data.totalRunTime*60 
         },
@@ -186,8 +191,11 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
       }
 
       if (isRunningFlag(data[7])){
+        this.setState({mode_selecting: false,});
         if (data[8]%16 == 0){
-          this.setState({running_state: 1,
+          this.setState({
+            running_state: 1,
+            
             cyclePercentage: (data[7]==9)?Math.round((data[10]*256+data[11])/20*100):Math.round((data[10]*256+data[11])/(data[9]*60)*100),
             countingDown: false,
             three_two_one: Full321,
@@ -329,6 +337,10 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
 
 
   startCW = async(select_mode:number=1) =>{
+    if (this.state.stop_running){
+      console.log('hey, don\'t press');
+      return;
+    }
     if (this.state.disable_start){
       DontPressToaster();
       return;
@@ -402,7 +414,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
   };
 
   stopCW = async() =>{
-    if (this.state.running_state == 0){
+    if (this.state.running_state == 0 || this.state.running_state == 2){
       return;
     }
 
@@ -434,6 +446,14 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
     }
     
     this.stop_timer();
+  }
+
+  handleStartButton = () => {
+  if (this.state.mode_selecting){
+    return;
+  }
+  this.startCW();
+  
   }
 
   render() {
@@ -470,17 +490,24 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
                 {this.state.running_state==0? '--' : this.formatTime(this.state.timeRemaining)}
               </Text>
               <View   style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'  }}>
-                <TouchableHighlight onPress={() => this.startCW()} style={[styles.startButton]}>
-                  {this.state.start_running ? <ActivityIndicator size="large" color="white" /> : 
+                <TouchableHighlight onPress={() => this.handleStartButton()} style={[styles.startButton]}>
+                  {(this.state.stop_running || this.state.mode_selecting) ?
+                  <FastImage source={require('../assets/pause.png')} style={{width: '100%', height: '100%', alignSelf: 'center', opacity: 0.5}}/>:
+                  (this.state.start_running ? <ActivityIndicator size="large" color="white" /> : 
                   this.state.running_state == 0 ? 
                   <FastImage source={require('../assets/start.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/> : 
                   this.state.running_state == 1 ? 
                   <FastImage source={require('../assets/pause.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/>  : 
-                  <FastImage source={require('../assets/start.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/>}
+                  <FastImage source={require('../assets/start.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/>)}
                 </TouchableHighlight>
                 <TouchableHighlight onPress={this.stopCW} style={[styles.stopButton]}>
-                {this.state.stop_running ? <ActivityIndicator size="large" color="white" /> : 
-                <FastImage source={require('../assets/stop.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/>}
+                  <View>
+                 {this.state.stop_running ? 
+                 <ActivityIndicator size="large" color="white" /> : 
+                  (this.state.running_state == 0 || this.state.running_state == 2 )?
+                  <FastImage source={require('../assets/stop.png')} style={{width: '100%', height: '100%', alignSelf: 'center', opacity: 0.5}}/>:
+                 <FastImage source={require('../assets/stop.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/>}
+                </View>
                 </TouchableHighlight>
               </View>
             </View>
