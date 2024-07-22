@@ -48,18 +48,18 @@ function convertActionListToDescription(actionList: string | any[], loop: boolea
   }
 
 
-export default class Modes extends Component<ModesProps, {}> {
+export default class Modes extends Component<ModesProps, {BLEConnection:boolean}> {
     constructor(props: ModesProps) {
         super(props);
-        // this.state = {
-        //     BLEConnection: 0,
-        // };
+        this.state = {
+            BLEConnection: false,
+        };
     }
 
 
     componentDidMount(): void {
-        eventEmitter.on('Notify', (data: any) => {
-            this.setState({ BLEConnection: true });
+        eventEmitter.on('BLEConnection', (data: any) => {
+            this.setState({ BLEConnection: data });
         });
         // console.log('Mode Mounted')
         // eventEmitter.on('BLEConnection', (data: any) => {
@@ -73,7 +73,7 @@ export default class Modes extends Component<ModesProps, {}> {
     }
     
     selectMode = () => {
-        if (!this.props.BLEConnection) {
+        if (!this.state.BLEConnection) {
             connectToaster();
             return;
         }

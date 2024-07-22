@@ -99,7 +99,7 @@ export default function App() {
       id: 'firstRun',
     }).then((firstRun) => {
       if (firstRun) {
-      RNRestart.Restart();
+      // RNRestart.Restart();
       storage.save({
         key: 'settings',
         id: 'firstRun',
