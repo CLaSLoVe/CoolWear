@@ -226,7 +226,13 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
           cyclePercentage: 0,
         });
       };
-      // console.log(this.state.running_state);
+
+      if (data[12] % 16 == 1){
+        this.setState({heater: 0x01});
+      } else {
+        this.setState({heater: 0x00});
+      }
+
     });
     // console.log(this.state.countingDown);
   }

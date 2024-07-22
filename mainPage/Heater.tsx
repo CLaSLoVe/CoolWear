@@ -78,14 +78,8 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                 // if (this.state.notifyCountList[1] >= NOTIFY_MIN){
                 if ((!this.state.disabledHeater)){
                     this.setState({ heater: false });
+                    // eventEmitter.emit('Heater', false);
                 }
-                // else{
-                //     this.setState({ heater: false });
-                // }
-                // }
-                // this.setState({ heater: false,
-                //     drainage: false,
-                //  });
             } else {
                 if (this.state.notifyCountList[2] >= NOTIFY_MIN){
                     if (data[12] >> 4) {
@@ -97,8 +91,10 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                 if ((!this.state.disabledHeater)){ //  && (this.state.notifyCountList[1] >= NOTIFY_MIN)
                     if (data[12] % 16) {
                         this.setState({ heater: true });
+                        // eventEmitter.emit('Heater', true);
                     }else{
                         this.setState({ heater: false });
+                        // eventEmitter.emit('Heater', false);
                     }
                 }
             }
@@ -194,7 +190,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
                                     })
                                 }, ()=>{
                                     this.setHeaterDrainage(this.state.heater, this.state.drainage);
-                                    eventEmitter.emit('Drainage', value);
+                                    // eventEmitter.emit('Drainage', value);
                                 });
                                 
                             }} />
