@@ -31,6 +31,8 @@ export const globalVals = {
   tryTimes: 15,
   heaterWaitingTime: 2500,
 
+  BLEConnected: false,
+
 };
 
 const BleManagerModule = NativeModules.BleManager;
@@ -83,38 +85,92 @@ export const globalStyles = StyleSheet.create({
 //   });
 // };
 
+// export async function readDataFromDevice() {
+//   try {
+//     await BleManager.startNotification(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid2);
+//     console.log('Started notification on ' + globalVals.CWid);
+
+//     const handleUpdate = ({ value, peripheral, characteristic, service }: { value: any, peripheral: any, characteristic: any, service: any }) => {
+//       eventEmitter.emit('Notify', value);
+//     };
+
+//     let subscription = bleManagerEmitter.addListener("BleManagerDidUpdateValueForCharacteristic", handleUpdate);
+
+//     const handleAppStateChange = (nextAppState: string) => {
+//       if (nextAppState === 'background') {
+//         subscription.remove();
+//         console.log('Stopped notification as app went to background');
+//       } else if (nextAppState === 'active') {
+//         subscription = bleManagerEmitter.addListener("BleManagerDidUpdateValueForCharacteristic", handleUpdate);
+//         console.log('Resumed notification as app came to foreground');
+//       }
+//     };
+
+//     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+
+//     return () => {
+//       appStateSubscription.remove();
+//       subscription.remove();
+//     };
+
+//   } catch (error) {
+//     console.log('Notification error:', error);
+//   }
+// }
+
+let appState = AppState.currentState;
+
 export async function readDataFromDevice() {
-  try {
-    await BleManager.startNotification(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid2);
-    console.log('Started notification on ' + globalVals.CWid);
+  // Function to start the notification
+  const startNotification = async () => {
+    try {
+      await BleManager.startNotification(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid2);
+      console.log('Notification started');
+    } catch (error) {
+      console.log('Notification start error', error);
+    }
+  };
+
+  // Function to stop the notification
+  const stopNotification = async () => {
+    try {
+      await BleManager.stopNotification(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid2);
+      console.log('Notification stopped');
+    } catch (error) {
+      console.log('Notification stop error', error);
+    }
+  };
+
+  // Handle app state changes
+  const handleAppStateChange = async (nextAppState: any) => {
+    if (appState.match(/inactive|background/) && nextAppState === 'active') {
+      // App has come to the foreground, start notifications
+      await startNotification();
+    } else if (nextAppState.match(/inactive|background/)) {
+      // App is going to the background, stop notifications
+      await stopNotification();
+    }
+    appState = nextAppState;
+  };
 
     const handleUpdate = ({ value, peripheral, characteristic, service }: { value: any, peripheral: any, characteristic: any, service: any }) => {
       eventEmitter.emit('Notify', value);
     };
 
-    let subscription = bleManagerEmitter.addListener("BleManagerDidUpdateValueForCharacteristic", handleUpdate);
+  bleManagerEmitter.addListener("BleManagerDidUpdateValueForCharacteristic", handleUpdate);
 
-    const handleAppStateChange = (nextAppState: string) => {
-      if (nextAppState === 'background') {
-        subscription.remove();
-        console.log('Stopped notification as app went to background');
-      } else if (nextAppState === 'active') {
-        subscription = bleManagerEmitter.addListener("BleManagerDidUpdateValueForCharacteristic", handleUpdate);
-        console.log('Resumed notification as app came to foreground');
-      }
-    };
+  // Add the event listener
+  const subscription = AppState.addEventListener('change', handleAppStateChange);
 
-    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+  // Initial start notification
+  await startNotification();
 
-    return () => {
-      appStateSubscription.remove();
-      subscription.remove();
-    };
-
-  } catch (error) {
-    console.log('Notification error:', error);
-  }
+  // Cleanup function to remove the event listener
+  return () => {
+    subscription.remove();
+  };
 }
+
 
 
 export function  connectToaster () {

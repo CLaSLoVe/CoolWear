@@ -1,6 +1,6 @@
 import { Text, StyleSheet, View,TouchableOpacity, Image, Alert, TouchableWithoutFeedback } from 'react-native'
 import React, { Component } from 'react'
-import { eventEmitter, storage, connectToaster } from '../GlobalVars'
+import {globalVals, eventEmitter, storage, connectToaster } from '../GlobalVars'
 import i18n from '../locales';
 import FastImage from 'react-native-fast-image';
 
@@ -58,22 +58,21 @@ export default class Modes extends Component<ModesProps, {BLEConnection:boolean}
 
 
     componentDidMount(): void {
-        eventEmitter.on('BLEConnection', (data: any) => {
-            this.setState({ BLEConnection: data });
-        });
-        // console.log('Mode Mounted')
+        // eventEmitter.on('BLEConnection', (data: any) => {
+        //     this.setState({ BLEConnection: data });
+        // });
         // eventEmitter.on('BLEConnection', (data: any) => {
         //     this.setState({ BLEConnection: data });
         // });
     }
 
     componentWillUnmount(): void {
-        eventEmitter.removeListener('Notify', () => {});
+        // eventEmitter.removeListener('Notify', () => {});
         // eventEmitter.removeListener('BLEConnection', () => {});
     }
     
     selectMode = () => {
-        if (!this.state.BLEConnection) {
+        if (!globalVals.BLEConnected) {
             connectToaster();
             return;
         }

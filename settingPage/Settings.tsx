@@ -123,6 +123,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
     componentDidMount() {
         this.calc_totalRunTime();
         this.reset();
+        
     }
 
     componentDidUpdate(prevProps:any, prevState:any, ) {

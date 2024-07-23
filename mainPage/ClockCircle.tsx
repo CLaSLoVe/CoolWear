@@ -47,10 +47,10 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
   // };
 
   componentWillUnmount(): void {
-    eventEmitter.removeAllListeners('BLEConnection');
-    eventEmitter.removeAllListeners('ModeSelect');
-    eventEmitter.removeAllListeners('Notify');
-    eventEmitter.removeAllListeners('Heater');
+    eventEmitter.removeListener('BLEConnection');
+    eventEmitter.removeListener('ModeSelect');
+    eventEmitter.removeListener('Notify');
+    eventEmitter.removeListener('Heater');
 
     
   }

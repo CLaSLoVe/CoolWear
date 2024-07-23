@@ -54,7 +54,9 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
 
           this.handlerDisconnect = bleManagerEmitter.addListener(
             'BleManagerDisconnectPeripheral',
-            this.setDisconnect
+            () => {
+              this.setState({ bleState: 0 });
+            }
           );
 
 
@@ -92,10 +94,14 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
     }
 
     setDisconnect = async() => {
+      if (this.state.bleState != 2){
+        return;
+      }
       await BleManager.disconnect(globalVals.CWid);
       this.setState({ bleState: 0});
       console.log('BLE Disconnected');
       eventEmitter.emit('BLEConnection', false);
+      globalVals.BLEConnected = false;
     }
 
 
@@ -192,6 +198,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
         this.setState({ bleState: 2 });
         console.log('BLE Connected');
         eventEmitter.emit('BLEConnection', true);
+        globalVals.BLEConnected = true;
     }
     
   render() {

@@ -9,6 +9,10 @@ export default class SettingPage extends Component<{navigation:any},{}> {
         super(props);
     }
 
+    componentDidMount(): void {
+        console.log('Custom Page Mounted');
+    }
+
   render() {
     return (
         <ScrollView>

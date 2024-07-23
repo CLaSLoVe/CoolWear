@@ -19,7 +19,6 @@ export default class ModePage extends Component<{navigation:any}, {existModes:an
         eventEmitter.on('refreshModes', this.refreshModes);
         eventEmitter.on('BLEConnection', (data: any) => {
             this.setState({ BLEConnection: data });
-            console.log('BLEConnection: ', data)
         });
     }
 
