@@ -57,7 +57,7 @@ export default class ScanScreen extends Component<{}, {showScanner:boolean}> {
   
     render() {
       return (
-        <View>
+        <View style={[styles.page]}>
             {this.state.showScanner ? 
                 <View>
                     <QRCodeScanner
@@ -71,7 +71,7 @@ export default class ScanScreen extends Component<{}, {showScanner:boolean}> {
                     }
                     />
                 </View>:
-                <View>
+                <View style={[styles.page]}>
                     <View style={[styles.container]}>
                         <BLEButton />
                         <View style={{ width: '30%',}}>
@@ -99,7 +99,7 @@ export default class ScanScreen extends Component<{}, {showScanner:boolean}> {
     },
     buttonTouchable: {
         backgroundColor:'darkblue',
-        height:60,
+        height:'100%',
         width: '90%',
         borderRadius:20,
         alignContent:'center',
@@ -119,8 +119,13 @@ export default class ScanScreen extends Component<{}, {showScanner:boolean}> {
 
       },
       container: {
-        // flex: 1,
+        flex: 1,
         flexDirection: 'row', // 设置为水平布局
         justifyContent: 'space-between', // 设置子元素的对齐方式
       },
+      page: {
+        // flex: 1,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },  
   });

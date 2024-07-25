@@ -149,7 +149,7 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
 
     render() {
         return (
-            <View>
+            <View style={styles.page}>
                 <View style={{flexDirection: 'row', alignItems:'center', justifyContent:"center"}}>
                     <View style={[styles.heaterBar]}>
                         <Switch
@@ -250,20 +250,20 @@ export default class Heater extends Component<{}, { heater: boolean, drainage:bo
 }
 
 const styles = StyleSheet.create({
+    page:{
+        flex: 3,
+    },
     heaterBar: {
         flexDirection: 'row',
-        alignItems: 'center',
-        // justifyContent: 'center',
         marginTop: 3,
         marginBottom: 10,
-        padding: 3,
+        padding: '4%',
     },
     h5: {
         fontSize: 24,
     },
     temperature: {
         flexDirection: 'row',
-        alignItems: 'center',
         padding: 3,
         height: 50,
         marginBottom: 5,
@@ -272,7 +272,6 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         fontSize: 25,
         minWidth: 80,
-        alignItems: 'center',
         color: 'black',
     },
     OC: {

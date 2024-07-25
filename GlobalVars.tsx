@@ -65,7 +65,6 @@ export const globalStyles = StyleSheet.create({
       marginTop: '10%',
       marginLeft: '5%',
       marginRight: '5%',
-
   },  
 })
 

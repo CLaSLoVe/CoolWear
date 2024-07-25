@@ -464,63 +464,58 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
 
   render() {
     return (
-      <View>
-        <View>
-          <View style={[styles.container]}>
-            <View style={[styles.Circle]}>
-                <AnimatedCircularProgress
-                    size={this.screenWidth*0.8}
-                    width={20}
-                    fill={this.state.cyclePercentage}
-                    rotation={0}
-                    tintColor={this.state.curHotCold==2?'#00ad3a':this.state.curHotCold==1?'#ff0000':'#00e0ff'}
-                    duration={0}
-                    lineCap="round"
-                    easing={Easing.linear}
-                    backgroundColor="#3d5875" />
+      <View style={[styles.container]}>
+        <View style={[styles.Circle]}>
+            <AnimatedCircularProgress
+                size={this.screenWidth*0.8}
+                width={20}
+                fill={this.state.cyclePercentage}
+                rotation={0}
+                tintColor={this.state.curHotCold==2?'#00ad3a':this.state.curHotCold==1?'#ff0000':'#00e0ff'}
+                duration={0}
+                lineCap="round"
+                easing={Easing.linear}
+                backgroundColor="#3d5875" />
+        </View>
+        {false?
+        // this.state.waiting ?
+        <View style={[styles.TextContainer]}>
+          <ActivityIndicator size="large" color="white" /> 
+        </View>:
+        this.state.countingDown ?
+        <View style={[styles.TextContainer]}>
+          <Text style={[styles.CountDownText]}>{this.state.ellipsis}</Text> 
+        </View>:
+        <View style={[styles.TextContainer]}>
+          <Text style={[styles.h5]}>
+          {i18n.t(this.state.circle_title)}
+          </Text>
+          <Text style={[styles.TimerText]}>
+            {this.state.running_state==0? '--' : this.formatTime(this.state.timeRemaining)}
+          </Text>
+          <View   style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'  }}>
+            <TouchableHighlight onPress={() => this.handleStartButton()} style={[styles.startButton]}>
+              {(this.state.stop_running || this.state.mode_selecting) ?
+              <FastImage source={require('../assets/pause.png')} style={{width: '100%', height: '100%', alignSelf: 'center', opacity: 0.5}}/>:
+              (this.state.start_running ? <ActivityIndicator size="large" color="white" /> : 
+              this.state.running_state == 0 ? 
+              <FastImage source={require('../assets/start.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/> : 
+              this.state.running_state == 1 ? 
+              <FastImage source={require('../assets/pause.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/>  : 
+              <FastImage source={require('../assets/start.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/>)}
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.stopCW} style={[styles.stopButton]}>
+              <View>
+              {this.state.stop_running ? 
+              <ActivityIndicator size="large" color="white" /> : 
+              (this.state.running_state == 0 || this.state.running_state == 2 )?
+              <FastImage source={require('../assets/stop.png')} style={{width: '100%', height: '100%', alignSelf: 'center', opacity: 0.5}}/>:
+              <FastImage source={require('../assets/stop.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/>}
             </View>
-            {false?
-            // this.state.waiting ?
-            <View style={[styles.TextContainer]}>
-              <ActivityIndicator size="large" color="white" /> 
-            </View>:
-            this.state.countingDown ?
-            <View style={[styles.TextContainer]}>
-              <Text style={[styles.CountDownText]}>{this.state.ellipsis}</Text> 
-            </View>:
-            <View style={[styles.TextContainer]}>
-              <Text style={[styles.h5]}>
-              {i18n.t(this.state.circle_title)}
-              </Text>
-              <Text style={[styles.TimerText]}>
-                {this.state.running_state==0? '--' : this.formatTime(this.state.timeRemaining)}
-              </Text>
-              <View   style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'  }}>
-                <TouchableHighlight onPress={() => this.handleStartButton()} style={[styles.startButton]}>
-                  {(this.state.stop_running || this.state.mode_selecting) ?
-                  <FastImage source={require('../assets/pause.png')} style={{width: '100%', height: '100%', alignSelf: 'center', opacity: 0.5}}/>:
-                  (this.state.start_running ? <ActivityIndicator size="large" color="white" /> : 
-                  this.state.running_state == 0 ? 
-                  <FastImage source={require('../assets/start.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/> : 
-                  this.state.running_state == 1 ? 
-                  <FastImage source={require('../assets/pause.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/>  : 
-                  <FastImage source={require('../assets/start.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/>)}
-                </TouchableHighlight>
-                <TouchableHighlight onPress={this.stopCW} style={[styles.stopButton]}>
-                  <View>
-                 {this.state.stop_running ? 
-                 <ActivityIndicator size="large" color="white" /> : 
-                  (this.state.running_state == 0 || this.state.running_state == 2 )?
-                  <FastImage source={require('../assets/stop.png')} style={{width: '100%', height: '100%', alignSelf: 'center', opacity: 0.5}}/>:
-                 <FastImage source={require('../assets/stop.png')} style={{width: '100%', height: '100%', alignSelf: 'center'}}/>}
-                </View>
-                </TouchableHighlight>
-              </View>
-            </View>
-            }
+            </TouchableHighlight>
           </View>
         </View>
-        
+        }
       </View>
     )
   }
@@ -528,70 +523,54 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    padding: 10,
+    padding: '5%',
+    flex: 4,
   },
   TextContainer: {
-    flexDirection: 'column',
     position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
+    left: '10%',
+    right: '10%',
+    top: '10%',
+    bottom: '10%',
   },
   startButton:{
-    // backgroundColor:'orange',
     height:60,
     width:60,
     borderRadius:60,
-    alignContent:'center',
-    justifyContent:'center',
-    marginRight: 20,
+    marginRight: '8%',
   },
   stopButton:{
-    // backgroundColor:'skyblue',
     height:60,
     width:60,
     borderRadius:60,
-    alignContent:'center',
-    justifyContent:'center',
   },
-  WarnText:{
-    color:'red',
-    fontSize:20,
-    textAlign:'center',
-    textAlignVertical:'center',
-    fontWeight:'bold',
-    height:80,
-  },
+  // WarnText:{
+  //   color:'red',
+  //   fontSize:20,
+  //   textAlign:'center',
+  //   textAlignVertical:'center',
+  //   fontWeight:'bold',
+  //   height:80,
+  // },
   CountDownText:{
     color:'black',
     fontSize:48,
-    textAlign:'center',
-    textAlignVertical:'center',
     fontWeight:'bold',
   },
   TimerText:{
     color:'black',
     fontSize:64,
-    textAlign:'center',
-    textAlignVertical:'center',
     fontWeight:'bold',
   },
   h5:{
     color:'black',
     fontSize:24,
-    textAlign:'center',
-    textAlignVertical:'center',
     fontWeight:'bold',
   },
   Circle:{
-    height:320,
+    height:'100%',
     width:'90%',
-    alignContent:'center',
-    justifyContent: 'center',
-    alignItems: 'center',
   }
 })

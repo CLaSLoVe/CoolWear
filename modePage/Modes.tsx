@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
         height:100,
         width:100,
         borderRadius:100,
-        marginRight: 40,
+        marginRight: '10%',
         alignContent:'center',
         justifyContent:'center',
       },

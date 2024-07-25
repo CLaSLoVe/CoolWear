@@ -9,12 +9,8 @@ export default class MainPage extends Component {
   
   render() {
     return (
-      <ScrollView>
-          <View style={[globalStyles.page]}>
-          <Scanner />
-          {/* <ScanDevicesScreen /> */}
-          
-        </View>
+      <ScrollView style={[globalStyles.page]}>
+        <Scanner />          
       </ScrollView>
     )
   }
