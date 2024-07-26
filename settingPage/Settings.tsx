@@ -251,8 +251,8 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                 //         <Text>-</Text>
                 //     </TouchableOpacity>
                 // </View> 
-            // </View>
-        // </View>
+                // </View>
+                // </View>
     )
 
     let content;
