@@ -14,6 +14,7 @@ import { initReactI18next } from 'react-i18next';
 import SplashScreen from 'react-native-splash-screen'
 import RNRestart from 'react-native-restart'; 
 import { ToastProvider } from 'react-native-toast-notifications';
+// import { GestureHandlerRootView } from "react-native-gesture-handler";
 // import loadable from '@loadable/component'
 
 // const ModePagePromise = import('./modePage')
@@ -236,6 +237,7 @@ export default function App() {
   }
 
   return (
+    // <GestureHandlerRootView>
     <ToastProvider offset={100}>
       <View>
 
@@ -289,5 +291,6 @@ export default function App() {
       </Tab.Navigator>
     </NavigationContainer>
     </ToastProvider>
+    // </GestureHandlerRootView>
   );
 }

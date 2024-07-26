@@ -1,4 +1,4 @@
-import { Text, StyleSheet, View, TouchableWithoutFeedback, ActivityIndicator, Alert, PermissionsAndroid, Platform, } from 'react-native'
+import { Text, StyleSheet, View, TouchableWithoutFeedback, ActivityIndicator, Alert, PermissionsAndroid, Platform, TouchableOpacity, } from 'react-native'
 import React, { Component } from 'react'
 import { globalVals, eventEmitter, readDataFromDevice, storage } from '../GlobalVars';
 import i18n from '../locales/index';
@@ -55,7 +55,10 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
           this.handlerDisconnect = bleManagerEmitter.addListener(
             'BleManagerDisconnectPeripheral',
             () => {
-              this.setState({ bleState: 0 });
+              this.setState({ bleState: 0 },()=>{
+                globalVals.BLEState = 0;
+              });
+              
             }
           );
 
@@ -98,17 +101,21 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
         return;
       }
       await BleManager.disconnect(globalVals.CWid);
-      this.setState({ bleState: 0});
+      this.setState({ bleState: 0},()=>{
+        globalVals.BLEState = 0;
+      });
       console.log('BLE Disconnected');
       eventEmitter.emit('BLEConnection', false);
-      globalVals.BLEConnected = false;
     }
 
 
     handlePress = async () => {
       if (this.state.bleState == 0){
           console.log('BLE Connecting')
-          this.setState({ bleState: 1 });
+          this.setState({ bleState: 1 },()=>{
+            globalVals.BLEState = 1;
+          });
+          
           this.handleBLEconnect();
       } else if (this.state.bleState == 2){
           this.handleDisconnect();
@@ -181,7 +188,9 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
           duration: 2000,
           animationType: "zoom-in",
         });
-        this.setState({ bleState: 0 });
+        this.setState({ bleState: 0 },()=>{
+          globalVals.BLEState = 0;
+        });
         return;
       }
         let success = false;
@@ -195,10 +204,11 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
           }
         }
         readDataFromDevice();
-        this.setState({ bleState: 2 });
+        this.setState({ bleState: 2 },()=>{
+          globalVals.BLEState = 2;
+        });
         console.log('BLE Connected');
         eventEmitter.emit('BLEConnection', true);
-        globalVals.BLEConnected = true;
     }
     
   render() {
@@ -207,14 +217,14 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
       <View style={{ width: '70%',}}>
         {
           this.state.disabled?
-          <TouchableWithoutFeedback onPress={() => {this.handlePress()}} disabled={this.state.disabled}>
+          <TouchableOpacity onPress={() => {this.handlePress()}} disabled={this.state.disabled}>
             <View style={[styles.bleButton]}>
                 <Text style={[styles.whiteText]}>
                     {i18n.t('PleaseScanQR') }
                 </Text>
             </View>
-          </TouchableWithoutFeedback>:
-          <TouchableWithoutFeedback onPress={() => {this.handlePress()}} disabled={this.state.disabled}>
+          </TouchableOpacity>:
+          <TouchableOpacity onPress={() => {this.handlePress()}} disabled={this.state.disabled}>
             <View style={[styles.bleButton]}>
                 {   bleState==0 ? (
                         <Text style={[styles.whiteText]}>
@@ -236,7 +246,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
                     ) : null
                 }
                 </View>
-        </TouchableWithoutFeedback>
+        </TouchableOpacity>
         }
         
       </View>

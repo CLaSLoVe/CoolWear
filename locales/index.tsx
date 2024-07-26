@@ -64,6 +64,9 @@ export const resources = {
       TherapyCompletedMessage: "Therapy completed, please click confirm",
       ErrorConnection: "Error in connection, please retry",
       Use: 'Use',
+      CancelScan: 'Cancel Scan',
+      HighTempWarningTitle: 'High Temperature Warning',
+      HighTempWarning: 'High temperature may cause burns, please use with caution'
     },
   },
   zh: {
@@ -126,6 +129,9 @@ export const resources = {
       TherapyCompletedMessage: "疗程已完成，请点击确认",
       ErrorConnection: "连接错误，请重试",
       Use: '使用',
+      CancelScan: '取消扫描',
+      HighTempWarningTitle: '高温警告',
+      HighTempWarning: '温度太高容易导致烫伤，请小心使用'
     },
   },
 };

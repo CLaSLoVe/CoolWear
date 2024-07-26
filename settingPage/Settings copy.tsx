@@ -1,12 +1,19 @@
 import { Text, StyleSheet, View, TouchableOpacity, Switch, TouchableOpacityComponent, TextInput, Alert, ScrollView } from 'react-native'
 import React, { Component } from 'react'
-import { globalVals, globalStyles, storage, eventEmitter, generatePickerItems } from '../GlobalVars'
+import { globalVals, globalStyles, storage, eventEmitter } from '../GlobalVars'
 import {Picker} from '@react-native-picker/picker';
 import { Image } from 'react-native';
 import RadioGroup from 'react-native-radio-buttons-group';
 import Clipboard from '@react-native-clipboard/clipboard';
 import i18n from '../locales/index';
 import RNRestart from 'react-native-restart'; 
+
+import DraggableFlatList, {
+    NestableDraggableFlatList,
+    NestableScrollContainer,
+    RenderItemParams,
+  ScaleDecorator,
+} from "react-native-draggable-flatlist";
 
 interface SettingProps {
     navigation: any;
@@ -53,7 +60,13 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
         });
     }
 
-
+    generatePickerItems = (a:number, b:number) => {
+        const items = [];
+        for (let i = a; i <= b; i++) {
+          items.push(<Picker.Item style={{fontSize:15}} key={i} label={String(i)} value={i} />);
+        }
+        return items;
+    };
 
     calcActionList = () => {
         let actionList = [];
@@ -160,7 +173,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                             
                         }
                     }>
-                    {generatePickerItems(globalVals.temperatureRange[0], globalVals.temperatureRange[1])}
+                    {this.generatePickerItems(globalVals.temperatureRange[0], globalVals.temperatureRange[1])}
                 </Picker>
             </View> 
             <Text style={[styles.selectorText]}>{"\u2103"}</Text>
@@ -180,11 +193,12 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                             this.setState({hotDur: itemValue});
                         }
                     }>
-                    {generatePickerItems(globalVals.hotDurationRange[0], globalVals.hotDurationRange[1])}
+                    {this.generatePickerItems(globalVals.hotDurationRange[0], globalVals.hotDurationRange[1])}
                 </Picker>
             </View> 
             <Text style={[styles.selectorText]}>{i18n.t("min")}</Text>
         </View>
+        {tempLine}
     </View>
     );
 
@@ -200,7 +214,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                     selectedValue={this.state.coldDur}
                     onValueChange={(itemValue, itemIndex) =>
                         this.setState({coldDur: itemValue})}>
-                    {generatePickerItems(globalVals.hotDurationRange[0], globalVals.hotDurationRange[1])}
+                    {this.generatePickerItems(globalVals.hotDurationRange[0], globalVals.hotDurationRange[1])}
                 </Picker>
             </View> 
             <Text style={[styles.selectorText]}>{i18n.t("min")}</Text>
@@ -230,40 +244,35 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
 
 
     let PanelHotCold = (
-        // <View style={[styles.timePanel]}>
-            // <View style={[styles.timePanelC]}>
-                // {
-                    this.state.hotFirst?
+        <View style={[styles.timePanel]}>
+        <View style={[styles.timePanelC]}>
+                    {
+                        this.state.hotFirst?
+                        <View>
+                            {hotLine}
+                            {coldLine}
+                        </View>:
+                        <View>
+                            {coldLine}
+                            {hotLine}
+                        </View>
+                    }
                     <View>
-                        {hotLine}
-                        {coldLine}
-                    </View>:
-                    <View>
-                        {coldLine}
-                        {hotLine}
+                        <TouchableOpacity style={[styles.buttonAdd]}>
+                            <Text>+</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.buttonMinus]}>
+                            <Text>-</Text>
+                        </TouchableOpacity>
                     </View>
-                // }
-                // <View>
-                //     <TouchableOpacity style={[styles.buttonAdd]}>
-                //         <Text>+</Text>
-                //     </TouchableOpacity>
-                //     <TouchableOpacity style={[styles.buttonMinus]}>
-                //         <Text>-</Text>
-                //     </TouchableOpacity>
-                // </View> 
-            // </View>
-        // </View>
+                </View>
+                </View>
     )
 
     let content;
     switch (this.state.modeHotCold) {
         case '1':
-        content = (
-            <View>
-                {hotLine}
-                {tempLine}
-            </View>
-        );
+        content = hotLine;
         break;
 
         case '2':
@@ -273,10 +282,34 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
         case '3':
         content = (
         <View>
+            {/* <NestableScrollContainer>
+                <NestableDraggableFlatList
+                    data={data}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.key}
+                    onDragEnd={({ data }) => setData(data)}
+                />
+            </NestableScrollContainer> */}
             
             {PanelHotCold}
-            {tempLine}
+                
         </View>
+
+         
+            // <View style={[styles.settingLine]}>
+            //         <Text style={[styles.selectorText]}>{i18n.t("Conduct")}</Text>
+            //             <View style={[styles.selectorBG]}>
+            //                 <Picker
+            //                     mode='dropdown'
+            //                     selectedValue={this.state.numCycles}
+            //                     onValueChange={(itemValue, itemIndex) =>
+            //                         this.setState({numCycles: itemValue})
+            //                     }>
+            //                     {this.generatePickerItems(globalVals.numCycleRange[0], globalVals.numCycleRange[1])}
+            //                 </Picker>
+            //             </View> 
+            //         <Text style={[styles.selectorText]}>{i18n.t("Cycles")}</Text>
+            //     </View>
 
         );
     }
@@ -359,6 +392,7 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                     
 
                     <TouchableOpacity style={[exStyles.resetButton]} onPress={()=>{this.reset()}}>
+                    
                         <Text style={[styles.smallButtonText]}>{i18n.t('Reset')}</Text>
                     </TouchableOpacity>
                 </View>
@@ -508,8 +542,8 @@ const styles = StyleSheet.create({
     buttonAdd: {
         backgroundColor: 'darkblue',
         width: 60,
-        height: 50,
-        borderRadius: 10,
+        height: 60,
+        borderRadius: 30,
         padding: 16,
         marginBottom: 16,
         justifyContent: 'space-evenly',
@@ -517,8 +551,8 @@ const styles = StyleSheet.create({
     buttonMinus: {
         backgroundColor: 'orange',
         width: 60,
-        height: 50,
-        borderRadius: 10,
+        height: 60,
+        borderRadius: 30,
         padding: 16,
         marginBottom: 16,
         justifyContent: 'space-evenly',

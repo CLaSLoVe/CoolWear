@@ -72,20 +72,12 @@ export default class Modes extends Component<ModesProps, {BLEConnection:boolean}
     }
     
     selectMode = () => {
-        if (!globalVals.BLEConnected) {
+        if (globalVals.BLEState != 2) {
             connectToaster();
             return;
         }
         console.log('select: ', this.props.title);
         this.props.navigation.navigate('Play', {
-            // title: this.props.title,
-            // totalRunTime: this.props.totalRunTime,
-            // temperature: this.props.temperature,
-            // pressure: this.props.pressure,
-            // actionList: this.props.actionList,
-            // timeId: this.props.timeId,
-            // locked: this.props.locked,
-            // automode: this.props.automode,
         });
         eventEmitter.emit('ModeSelect', 
             {totalRunTime: this.props.totalRunTime,
@@ -158,7 +150,6 @@ export default class Modes extends Component<ModesProps, {BLEConnection:boolean}
                             <FastImage source={require('../assets/mode_start.png')} style={{width: '80%', height: '80%', alignSelf: 'center'}}/>
                         </TouchableOpacity>
                     </View>
-                    {/* <Text>0</Text> */}
                 </View>
             </View>
         </TouchableWithoutFeedback>

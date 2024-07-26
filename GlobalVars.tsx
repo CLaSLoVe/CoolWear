@@ -10,6 +10,7 @@ import DeviceInfo from 'react-native-device-info';
 import { getUniqueId, getManufacturer } from 'react-native-device-info';
 import axios from 'axios';
 import { AppState } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 // export const CWid = "F4:12:FA:F8:F1:FE";
 // export const serviceid = "6e400020-b5a3-f393-e0a9-e50e24dcca9d";
@@ -31,7 +32,7 @@ export const globalVals = {
   tryTimes: 15,
   heaterWaitingTime: 2500,
 
-  BLEConnected: false,
+  BLEState: 0
 
 };
 
@@ -67,6 +68,15 @@ export const globalStyles = StyleSheet.create({
       marginRight: '5%',
   },  
 })
+
+
+export   function  generatePickerItems (a:number, b:number){
+  const items = [];
+  for (let i = a; i <= b; i++) {
+    items.push(<Picker.Item style={{fontSize:15}} key={i} label={String(i)} value={i} />);
+  }
+  return items;
+};
 
 // export async function readDataFromDevice(){
 //   BleManager.startNotification(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid2).then(() => {

@@ -3,7 +3,6 @@ import React, { Component } from 'react'
 import Settings from './Settings'
 import { globalStyles } from '../GlobalVars'
 
-
 export default class SettingPage extends Component<{navigation:any},{}> {
     constructor(props: { navigation: any }) {
         super(props);
@@ -20,6 +19,11 @@ export default class SettingPage extends Component<{navigation:any},{}> {
                 <Settings navigation={this.props.navigation}/>
             </View>
         </ScrollView>
+
+        // <Drag />
+
+
+        
     )
   }
 }
