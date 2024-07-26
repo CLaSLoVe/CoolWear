@@ -3,8 +3,6 @@ import React, {Component} from 'react'
 import {eventEmitter, storage, isRunningFlag} from "../GlobalVars";
 
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import { RNCamera } from 'react-native-camera';
-
 import ClockCircle from './ClockCircle'
 import Heater from './Heater'
 import BLEButton from './BLEButton';

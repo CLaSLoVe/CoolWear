@@ -24,7 +24,7 @@ export const globalVals = {
   serviceid: "6e400020-b5a3-f393-e0a9-e50e24dcca9d",
   characteristicid: "6e400023-b5a3-f393-e0a9-e50e24dcca9d",
   characteristicid2: "6e400021-b5a3-f393-e0a9-e50e24dcca9d",
-  temperatureRange: [38, 48],
+  temperatureRange: [38, 52],
   hotDurationRange: [1, 30],
   coldDurationRange: [1, 30],
   numCycleRange: [1, 10],

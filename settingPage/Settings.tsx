@@ -188,49 +188,60 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
             </View> 
             <Text style={[styles.selectorText]}>{i18n.t("min")}</Text>
         </View>
-        <View style={[styles.settingLine]}>
-            {/* <Image source={require('../assets/compression.png')} style={{aspectRatio: 1, width: "12%", alignSelf: 'center'}} fadeDuration={100}/>
-            <Text>  </Text> */}
-            <Text>            </Text>
-            <View style={[styles.selectorBG]}>
-                <Picker
-                    mode='dropdown'
-                    selectedValue={this.state.pressure}
-                    onValueChange={(itemValue, itemIndex) =>
-                        this.setState({pressure: itemValue})}>
-                    <Picker.Item style={{fontSize:16}} label={i18n.t('P1')} value={1} />
-                    <Picker.Item style={{fontSize:16}} label={i18n.t('P2')} value={2} />
-                    <Picker.Item style={{fontSize:16}} label={i18n.t('P3')} value={3} />
-                </Picker>
-            </View>   
-            <Text style={[styles.selectorText]}>{i18n.t("Pressure")}</Text>
-        </View>
+        
     </View>
 
-);
+    );
+
+    let pressureLine = (
+        <View style={[styles.settingLine]}>
+                <Text style={[styles.selectorText]}>{i18n.t("Use")}</Text>
+                <View style={[styles.selectorBG]}>
+                    <Picker
+                        mode='dropdown'
+                        selectedValue={this.state.pressure}
+                        onValueChange={(itemValue, itemIndex) =>
+                            this.setState({pressure: itemValue})}>
+                        <Picker.Item style={{fontSize:16}} label={i18n.t('P1')} value={1} />
+                        <Picker.Item style={{fontSize:16}} label={i18n.t('P2')} value={2} />
+                        <Picker.Item style={{fontSize:16}} label={i18n.t('P3')} value={3} />
+                    </Picker>
+                </View>   
+                <Text style={[styles.selectorText]}>{i18n.t("Pressure")}</Text>
+            </View>
+    );
 
     let content;
     switch (this.state.modeHotCold) {
         case '1':
         content = hotLine;
         break;
+
         case '2':
         content = coldLine;
         break;
+
         case '3':
         content = (
         <View>
-            {
-                this.state.hotFirst?
+            <View style={[styles.panel]}>
                 <View>
-                    {hotLine}
-                    {coldLine}
-                </View>:
-                <View>
-                    {coldLine}
-                    {hotLine}
+                    {
+                        this.state.hotFirst?
+                        <View>
+                            {hotLine}
+                            {coldLine}
+                        </View>:
+                        <View>
+                            {coldLine}
+                            {hotLine}
+                        </View>
+                    }
                 </View>
-            }
+            </View>
+            
+
+            
             
             
             <View style={[styles.settingLine]}>
@@ -286,18 +297,24 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                     
                     
                 </View>
+
+                
+                
                     {this.state.modeHotCold=='3'?
-                    <View  style={[styles.settingLine]}>
-                        <Switch
-                            trackColor={{ false: "#767577", true: "#ff0000" }}
-                            value={this.state.hotFirst}
-                            onValueChange={(value) => {
-                                this.setState({
-                                    hotFirst: value,
-                                });
-                            }} />
-                    <Text style={{fontSize: 20, color: 'black', }}>{i18n.t('HotFirst')}</Text>
-                </View>:null
+                    <View>
+                        <View  style={[styles.settingLine]}>
+                            <Switch
+                                trackColor={{ false: "#767577", true: "#ff0000" }}
+                                value={this.state.hotFirst}
+                                onValueChange={(value) => {
+                                    this.setState({
+                                        hotFirst: value,
+                                    });
+                                }} />
+                            <Text style={{fontSize: 20, color: 'black', }}>{i18n.t('HotFirst')}</Text>
+                        </View>
+                        {pressureLine}
+                    </View>:pressureLine
                     }
                 
                 {content}
@@ -451,6 +468,14 @@ export default class Settings extends Component<SettingProps, {}> {
 
 const styles = StyleSheet.create({
     panel: {
+        backgroundColor: 'white',
+        borderRadius: 8,
+        elevation: 5,
+        padding: 16,
+        marginBottom: 16,
+        justifyContent: 'space-evenly',
+    },
+    timePanel: {
         backgroundColor: 'white',
         borderRadius: 8,
         elevation: 5,

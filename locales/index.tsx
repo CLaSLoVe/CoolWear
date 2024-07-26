@@ -63,6 +63,7 @@ export const resources = {
       TherapyCompleted: "Therapy Completed",
       TherapyCompletedMessage: "Therapy completed, please click confirm",
       ErrorConnection: "Error in connection, please retry",
+      Use: 'Use',
     },
   },
   zh: {
@@ -124,6 +125,7 @@ export const resources = {
       TherapyCompleted: "疗程已完成",
       TherapyCompletedMessage: "疗程已完成，请点击确认",
       ErrorConnection: "连接错误，请重试",
+      Use: '使用',
     },
   },
 };
