@@ -21,7 +21,7 @@ export const globalVals = {
   // CWid: "F4:12:FA:F8:F1:FE",
   // CWid: "74:4D:BD:79:6E:C6",
   // CWid: "34:85:18:8D:36:3A",
-  CWid: "",
+  CWid: "none",
   serviceid: "6e400020-b5a3-f393-e0a9-e50e24dcca9d",
   characteristicid: "6e400023-b5a3-f393-e0a9-e50e24dcca9d",
   characteristicid2: "6e400021-b5a3-f393-e0a9-e50e24dcca9d",

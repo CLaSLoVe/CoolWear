@@ -1,6 +1,6 @@
 import { Text, StyleSheet, View, TouchableWithoutFeedback, ActivityIndicator, Alert, PermissionsAndroid, Platform, TouchableOpacity, } from 'react-native'
 import React, { Component } from 'react'
-import { globalVals, eventEmitter, readDataFromDevice, storage } from '../GlobalVars';
+import { globalVals, eventEmitter, readDataFromDevice, storage, DontPressToaster } from '../GlobalVars';
 import i18n from '../locales/index';
 
 import {Toast} from "react-native-toast-notifications";
@@ -110,6 +110,15 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
 
 
     handlePress = async () => {
+      if (globalVals.CWid == 'none'){
+        Toast.show(i18n.t('PleaseScanQR'), {
+          type: "warning",
+          placement: "bottom",
+          duration: 2000,
+          animationType: "zoom-in",
+        });
+        return
+      }
       if (this.state.bleState == 0){
           console.log('BLE Connecting')
           this.setState({ bleState: 1 },()=>{
@@ -119,6 +128,8 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
           this.handleBLEconnect();
       } else if (this.state.bleState == 2){
           this.handleDisconnect();
+      } else {
+        DontPressToaster();
       }
     };
 
@@ -216,7 +227,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
     const {bleState} = this.state;
     return (
       <View style={{ width: '70%',}}>
-        {
+        {/* {
           this.state.disabled?
           <TouchableOpacity onPress={() => {this.handlePress()}} disabled={this.state.disabled}>
             <View style={[styles.bleButton]}>
@@ -224,8 +235,8 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
                     {i18n.t('PleaseScanQR') }
                 </Text>
             </View>
-          </TouchableOpacity>:
-          <TouchableOpacity onPress={() => {this.handlePress()}} disabled={this.state.disabled}>
+          </TouchableOpacity>: */}
+          <TouchableOpacity onPress={() => {this.handlePress()}}>
             <View style={[styles.bleButton]}>
                 {   bleState==0 ? (
                         <Text style={[styles.whiteText]}>
@@ -248,7 +259,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
                 }
                 </View>
         </TouchableOpacity>
-        }
+        {/* } */}
         
       </View>
     )
