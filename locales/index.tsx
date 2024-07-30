@@ -66,7 +66,9 @@ export const resources = {
       Use: 'Use',
       CancelScan: 'Cancel Scan',
       HighTempWarningTitle: 'High Temperature Warning',
-      HighTempWarning: 'High temperature may cause burns, please use with caution'
+      HighTempWarning: 'High temperature may cause burns, please use with caution',
+      CameraZoom: 'Pinch to zoom',
+      LongPressToDel:"Long press to delete in customization",
     },
   },
   zh: {
@@ -131,7 +133,9 @@ export const resources = {
       Use: '使用',
       CancelScan: '取消扫描',
       HighTempWarningTitle: '高温警告',
-      HighTempWarning: '温度太高容易导致烫伤，请小心使用'
+      HighTempWarning: '温度太高容易导致烫伤，请小心使用',
+      CameraZoom: '双指可以缩放',
+      LongPressToDel:"自定义模式可以长按删除",
     },
   },
 };

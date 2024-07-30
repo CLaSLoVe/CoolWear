@@ -230,18 +230,28 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
 
 
     let PanelHotCold = (
+        this.state.hotFirst?
+            <View>
+                {hotLine}
+                {coldLine}
+            </View>:
+            <View>
+                {coldLine}
+                {hotLine}
+            </View>
+        
         // <View style={[styles.timePanel]}>
             // <View style={[styles.timePanelC]}>
                 // {
-                    this.state.hotFirst?
-                    <View>
-                        {hotLine}
-                        {coldLine}
-                    </View>:
-                    <View>
-                        {coldLine}
-                        {hotLine}
-                    </View>
+                    // this.state.hotFirst?
+                    // <View>
+                    //     {hotLine}
+                    //     {coldLine}
+                    // </View>:
+                    // <View>
+                    //     {coldLine}
+                    //     {hotLine}
+                    // </View>
                 // }
                 // <View>
                 //     <TouchableOpacity style={[styles.buttonAdd]}>
@@ -253,6 +263,22 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                 // </View> 
                 // </View>
                 // </View>
+    )
+
+    let NumCycleLine = (
+        <View style={[styles.settingLine]}>
+            <Text style={[styles.selectorText]}>{i18n.t('Conduct')}</Text>
+            <View style={[styles.selectorBG]}>
+                <Picker
+                    mode='dropdown'
+                    selectedValue={this.state.numCycles}
+                    onValueChange={(itemValue, itemIndex) =>
+                        this.setState({numCycles: itemValue})}>
+                    {generatePickerItems(globalVals.numCycleRange[0], globalVals.numCycleRange[1])}
+                </Picker>
+            </View> 
+            <Text style={[styles.selectorText]}>{i18n.t('Cycles')}</Text>
+        </View>
     )
 
     let content;
@@ -267,15 +293,19 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
         break;
 
         case '2':
-        content = coldLine;
+        content = (
+            <View>
+                {coldLine}
+            </View>
+        );
         break;
 
         case '3':
         content = (
         <View>
-            
             {PanelHotCold}
             {tempLine}
+            {NumCycleLine}
         </View>
 
         );
@@ -307,9 +337,12 @@ export class CustomPage extends Component<SettingProps, {temperature:number, hot
                         labelStyle={{fontSize: 20, color: 'black', }}
                         radioButtons={this.state.radioButtons} 
                         onPress={(selectWhat)=>{
+                            this.reset();
                             this.setState({modeHotCold: selectWhat});
                             if (selectWhat!='3'){
                                 this.setState({numCycles: 1});
+                            }else{
+                                this.setState({numCycles: 3});
                             }
                         }}
                         selectedId={this.state.modeHotCold}

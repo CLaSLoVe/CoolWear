@@ -37,7 +37,7 @@ export default class MainPage extends Component<{}, {showScanner:boolean}> {
                             // disabled={(globalVals.BLEState!=1)}
                             onPress={() => {
                               this.setState({showScanner: true});
-                              console.log(globalVals.BLEState);
+                              // console.log(globalVals.BLEState);
                               }}>
                                 <View style={[styles.buttonTouchable]}>
                                 <Text style={[styles.whiteText]}>{i18n.t('ScanQR')}</Text>

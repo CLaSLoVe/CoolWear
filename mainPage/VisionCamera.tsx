@@ -4,7 +4,7 @@ import { Camera, CameraDevice, useCameraDevice, useCameraPermission, useCodeScan
 import i18n from '../locales/index';
 
 import { Toast } from 'react-native-toast-notifications';
-import { eventEmitter, storage } from '../GlobalVars';
+import { eventEmitter, globalVals, storage } from '../GlobalVars';
 
 
 const { width, height } = Dimensions.get('window');
@@ -72,7 +72,7 @@ export default function VisionCamera() {
 
     const onSuccess = (e: {value:any}) => {
         const prefix = "coolwear-";
-        
+        console.log('current uuid:', globalVals.CWid);
         if (e.value.startsWith(prefix)) {
             Toast.show(i18n.t('IsCW'), {
                 type: "success",
@@ -86,6 +86,7 @@ export default function VisionCamera() {
                 data: e.value.slice(prefix.length),
               }).then(() => {
                 console.log('UUID saved: ', e.value);
+                globalVals.CWid = e.value.slice(prefix.length);
                 eventEmitter.emit('QRScanned', true);
               });
         }else{
@@ -119,7 +120,9 @@ export default function VisionCamera() {
                 device={device}
                 isActive={isCameraActive}
                 codeScanner={codeScanner}
+                enableZoomGesture={true}
             />
+            <Text style={styles.blackText}>{i18n.t('CameraZoom')}</Text>
             <TouchableOpacity onPress={cancelScan}>
                 <View style={[styles.buttonTouchable]}>
                 <Text style={[styles.whiteText]}>{i18n.t('CancelScan')}</Text>
@@ -143,6 +146,13 @@ const styles = StyleSheet.create({
     },
     whiteText: {
         color: 'white',
+        fontSize: 20,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        fontWeight: 'bold',
+    },
+    blackText: {
+        color: 'black',
         fontSize: 20,
         textAlign: 'center',
         textAlignVertical: 'center',

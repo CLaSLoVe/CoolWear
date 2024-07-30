@@ -129,7 +129,7 @@ export default class ClockCircle extends Component<{}, {full_time:number, disabl
           let hotTime = 0;
           let temperature = data.temperature;
           let isSingle = false;
-          console.log(data);
+          // console.log(data);
           if (data.actionList.length == 1){
             isSingle = true;
             coldTime = data.actionList[0][0];

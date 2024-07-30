@@ -168,6 +168,7 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
       };
 
      connectWithTimeout = async (timeout = 5000) => {
+        console.log('on', globalVals.CWid);
         const connectPromise = BleManager.connect(globalVals.CWid);
         const timeoutPromise = new Promise((resolve, reject) => {
           setTimeout(() => {
