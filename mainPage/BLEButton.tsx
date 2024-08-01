@@ -1,6 +1,6 @@
 import { Text, StyleSheet, View, TouchableWithoutFeedback, ActivityIndicator, Alert, PermissionsAndroid, Platform, TouchableOpacity, } from 'react-native'
 import React, { Component } from 'react'
-import { globalVals, eventEmitter, readDataFromDevice, storage, DontPressToaster } from '../GlobalVars';
+import { globalVals, eventEmitter, readDataFromDevice, storage, DontPressToaster, bleManagerEmitter } from '../GlobalVars';
 import i18n from '../locales/index';
 
 import {Toast} from "react-native-toast-notifications";
@@ -19,7 +19,7 @@ import BleManager, {
 import Scanner from './Scanner';
 
 const BleManagerModule = NativeModules.BleManager;
-const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
+// const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
 
 export default class BLEButton extends Component<{}, {bleState: number, disabled: boolean, data: number[]}> {
@@ -37,9 +37,14 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
     componentDidMount() {
         BleManager.start({showAlert: false})
         this.handleAndroidPermissions();
-        // eventEmitter.on('QRScanned', (data) => {
-        //   this.handlePress();
-        // });
+        eventEmitter.on('QRScanned', (data) => {
+          if (data){
+            if (globalVals.BLEState == 2){
+              this.setDisconnect();
+            }
+            // this.handlePress();
+          }
+        });
         console.log('BleManager Started');
         storage.load({
           key: 'settings',
@@ -57,6 +62,12 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
             () => {
               this.setState({ bleState: 0 },()=>{
                 globalVals.BLEState = 0;
+              });
+              Toast.show(i18n.t('BLEDisconnected'), {
+                type: "warning",
+                placement: "bottom",
+                duration: 2000,
+                animationType: "zoom-in",
               });
               
             }
@@ -98,9 +109,14 @@ export default class BLEButton extends Component<{}, {bleState: number, disabled
 
     setDisconnect = async() => {
       if (this.state.bleState != 2){
+        console.log(
+          'BLE not connected',
+        )
         return;
       }
-      await BleManager.disconnect(globalVals.CWid);
+      // await BleManager.stopNotification(globalVals.CWid, globalVals.serviceid, globalVals.characteristicid2);
+      await BleManager.disconnect(globalVals.CWid, true);
+      bleManagerEmitter.removeAllListeners('BleManagerDidUpdateValueForCharacteristic');
       this.setState({ bleState: 0},()=>{
         globalVals.BLEState = 0;
       });
