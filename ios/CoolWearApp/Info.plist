@@ -33,7 +33,7 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>We need access to your location to enable Bluetooth functionality and connect with nearby devices while you use the app.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -48,5 +48,15 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+    <string>This app needs access to Bluetooth to connect to external devices.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs access to the camera to scan QR codes.</string>
+
+    <!-- 后台模式 -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>bluetooth-central</string>
+    </array>
 </dict>
 </plist>
